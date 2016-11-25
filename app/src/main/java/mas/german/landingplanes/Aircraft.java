@@ -4,8 +4,7 @@ import android.util.Log;
 
 /**
  * Represents an Aircraft. Specific aircraft types should extend from this class.
- * An Aircraft has speed, direction and size (it is modeled by a circle).
- * An Aircraft can land on Landing Sites.
+ * An Aircraft has speed, direction and size. An Aircraft can land on Landing Sites.
  */
 public abstract class Aircraft {
     private static final String TAG = Aircraft.class.getSimpleName();

@@ -4,7 +4,7 @@ import android.util.Log;
 
 /**
  * Represents a Landing Site. Specific landing sites should extend from this class.
- * A landing site has a size (width and height), color, and can only accept certain Aircrafts.
+ * A landing site has a size (width and height) and can accept Aircrafts for landing on them.
  */
 public abstract class LandingSite {
     private static final String TAG = LandingSite.class.getSimpleName();
