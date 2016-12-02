@@ -3,6 +3,7 @@ package mas.german.landingplanes.LandingSites;
 import mas.german.landingplanes.Aircrafts.Helicopter;
 import mas.german.landingplanes.Aircrafts.LargePlane;
 import mas.german.landingplanes.Aircrafts.LightPlane;
+import mas.german.landingplanes.Position;
 
 /**
  * Represents a Landing Site. Specific landing sites should extend from this class.
@@ -11,23 +12,10 @@ import mas.german.landingplanes.Aircrafts.LightPlane;
 public abstract class LandingSite {
     private static final String TAG = LandingSite.class.getSimpleName();
 
-    private int mWidth;
-    private int mHeight;
+    private Position mPos;
 
-    public void setWidth(int width) {
-        mWidth = width;
-    }
-
-    public void setHeight(int height) {
-        mHeight = height;
-    }
-
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
+    public void setPos(Position pos) {
+        mPos = pos;
     }
 
     public abstract boolean accept(LargePlane largePlane);
