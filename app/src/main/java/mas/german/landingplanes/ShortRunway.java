@@ -1,8 +1,6 @@
-package mas.german.landingplanes.LandingSites;
+package mas.german.landingplanes;
 
-import mas.german.landingplanes.Aircrafts.Helicopter;
-import mas.german.landingplanes.Aircrafts.LargePlane;
-import mas.german.landingplanes.Aircrafts.LightPlane;
+import android.util.Log;
 
 /**
  * Represents a Short Runway, which is a Landing Site.

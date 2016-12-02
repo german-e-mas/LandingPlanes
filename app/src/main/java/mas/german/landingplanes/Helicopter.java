@@ -1,6 +1,6 @@
-package mas.german.landingplanes.Aircrafts;
+package mas.german.landingplanes;
 
-import mas.german.landingplanes.LandingSites.LandingSite;
+import android.util.Log;
 
 /**
  * Represents an helicopter, which is an Aircraft.
