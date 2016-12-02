@@ -1,6 +1,6 @@
-package mas.german.landingplanes;
+package mas.german.landingplanes.Aircrafts;
 
-import android.util.Log;
+import mas.german.landingplanes.LandingSites.LandingSite;
 
 /**
  * Represents a large plane, which is an Aircraft.

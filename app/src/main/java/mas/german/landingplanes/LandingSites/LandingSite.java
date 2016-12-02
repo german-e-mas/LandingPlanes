@@ -1,6 +1,8 @@
-package mas.german.landingplanes;
+package mas.german.landingplanes.LandingSites;
 
-import android.util.Log;
+import mas.german.landingplanes.Aircrafts.Helicopter;
+import mas.german.landingplanes.Aircrafts.LargePlane;
+import mas.german.landingplanes.Aircrafts.LightPlane;
 
 /**
  * Represents a Landing Site. Specific landing sites should extend from this class.

@@ -1,6 +1,7 @@
-package mas.german.landingplanes;
+package mas.german.landingplanes.Aircrafts;
 
-import android.util.Log;
+import mas.german.landingplanes.LandingSites.LandingSite;
+import mas.german.landingplanes.Position;
 
 /**
  * Represents an Aircraft. Specific aircraft types should extend from this class.
@@ -12,6 +13,7 @@ public abstract class Aircraft {
     private int mSpeed;
     private double mDirection;
     private int mRadius;
+    private Position mPos;
 
     public void setSpeed(int speed) {
         mSpeed = speed;
@@ -25,6 +27,11 @@ public abstract class Aircraft {
         mRadius = radius;
     }
 
+    public void setPos(int x, int y) {
+        mPos.setX(x);
+        mPos.setY(y);
+    }
+
     public int getSpeed() {
         return mSpeed;
     }
@@ -35,6 +42,10 @@ public abstract class Aircraft {
 
     public int getRadius() {
         return mRadius;
+    }
+
+    public Position getPos() {
+        return mPos;
     }
 
     public abstract boolean land(LandingSite site);
