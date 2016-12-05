@@ -101,6 +101,6 @@ public class Game {
      * Game over procedure.
      */
     private void gameOver() {
-        Log.e(TAG, "Game Over!");
+        // TODO
     }
 }
