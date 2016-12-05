@@ -12,10 +12,18 @@ import mas.german.landingplanes.Position;
 public abstract class LandingSite {
     private static final String TAG = LandingSite.class.getSimpleName();
 
+    LandingSite(Position pos) {
+        mPos = pos;
+    }
+
     private Position mPos;
 
     public void setPos(Position pos) {
         mPos = pos;
+    }
+
+    public Position getPos() {
+        return mPos;
     }
 
     public abstract boolean accept(LargePlane largePlane);

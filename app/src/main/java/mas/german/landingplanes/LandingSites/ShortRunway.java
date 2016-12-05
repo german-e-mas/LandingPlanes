@@ -3,6 +3,7 @@ package mas.german.landingplanes.LandingSites;
 import mas.german.landingplanes.Aircrafts.Helicopter;
 import mas.german.landingplanes.Aircrafts.LargePlane;
 import mas.german.landingplanes.Aircrafts.LightPlane;
+import mas.german.landingplanes.Position;
 
 /**
  * Represents a Short Runway, which is a Landing Site.
@@ -11,6 +12,9 @@ import mas.german.landingplanes.Aircrafts.LightPlane;
 public class ShortRunway extends LandingSite {
     private static final String TAG = ShortRunway.class.getSimpleName();
 
+    public ShortRunway(Position pos) {
+        super(pos);
+    }
     public boolean accept(LargePlane largePlane) {
         // Large planes can't land on Short Runways.
         return false;
