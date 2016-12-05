@@ -1,5 +1,7 @@
 package mas.german.landingplanes.Aircrafts;
 
+import android.util.Log;
+
 import mas.german.landingplanes.LandingSites.LandingSite;
 import mas.german.landingplanes.Position;
 
@@ -15,11 +17,17 @@ public abstract class Aircraft {
     private int mRadius;
     private Position mPos;
 
+    Aircraft(int speed, double direction, Position pos) {
+        mSpeed = speed;
+        mDirection = direction;
+        mPos = pos;
+    }
+
     public void setSpeed(int speed) {
         mSpeed = speed;
     }
 
-    public void setDirection(int direction) {
+    public void setDirection(double direction) {
         mDirection = direction;
     }
 
@@ -47,5 +55,52 @@ public abstract class Aircraft {
         return mPos;
     }
 
+    /**
+     * Updates the aircraft's position according to it's speed and direction.
+     */
+    public void move() {
+        mPos.setX(mPos.getX() + (int) (mSpeed * Math.cos(mDirection)));
+        mPos.setY(mPos.getY() + (int) (mSpeed * Math.sin(mDirection)));
+    }
+
+    public boolean crashesWith(Aircraft otherAircraft) {
+        return ((!this.equals(otherAircraft)) &&
+                (otherAircraft.getPos().distanceTo(mPos)) <= (mRadius + otherAircraft.getRadius()));
+    }
+
     public abstract boolean land(LandingSite site);
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getClass().getSimpleName()).append(" Spd=").append(mSpeed).append(" Dir=");
+        stringBuilder.append(mDirection).append(" Rad=").append(mRadius).append(" Pos=");
+        stringBuilder.append(mPos.toString());
+        return stringBuilder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Aircraft aircraft = (Aircraft) o;
+
+        if (mSpeed != aircraft.mSpeed) return false;
+        if (Double.compare(aircraft.mDirection, mDirection) != 0) return false;
+        if (mRadius != aircraft.mRadius) return false;
+        return mPos != null ? mPos.equals(aircraft.mPos) : aircraft.mPos == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = mSpeed;
+        temp = Double.doubleToLongBits(mDirection);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + mRadius;
+        result = 31 * result + (mPos != null ? mPos.hashCode() : 0);
+        return result;
+    }
 }

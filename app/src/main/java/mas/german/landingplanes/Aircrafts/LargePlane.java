@@ -1,6 +1,7 @@
 package mas.german.landingplanes.Aircrafts;
 
 import mas.german.landingplanes.LandingSites.LandingSite;
+import mas.german.landingplanes.Position;
 
 /**
  * Represents a large plane, which is an Aircraft.
@@ -9,7 +10,11 @@ import mas.german.landingplanes.LandingSites.LandingSite;
 public class LargePlane extends Aircraft {
     private static final String TAG = LargePlane.class.getSimpleName();
 
+    public LargePlane(int speed, double direction, Position pos) {
+        super(speed, direction, pos);
+    }
+
     public boolean land(LandingSite site) {
-        return site.accept(this);
+        return (getPos().distanceTo(site.getPos()) <= getRadius()) && (site.accept(this));
     }
 }
