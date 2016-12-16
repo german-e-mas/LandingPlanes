@@ -104,7 +104,10 @@ public class Game {
      * Game over procedure.
      */
     private void gameOver() {
-        // TODO: Game Over Procedure:
-        // Terminate Tasks, Clean Lists, Score = 0. If there are lives, it should -1 and restart.
+        // Cancel the Update Task.
+        mUpdateTask.cancel(true);
+        // Clean the airplanes and sites.
+        mAircrafts.clear();
+        mSites.clear();
     }
 }
