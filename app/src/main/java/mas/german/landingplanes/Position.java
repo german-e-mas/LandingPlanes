@@ -6,6 +6,11 @@ package mas.german.landingplanes;
  */
 public class Position {
     private static final String TAG = Position.class.getSimpleName();
+    // Boundaries of the map.
+    private static final double BOUNDARY_LEFT = 0;
+    private static final double BOUNDARY_UP = 100;
+    private static final double BOUNDARY_RIGHT = 100;
+    private static final double BOUNDARY_DOWN = 0;
 
     private double mX;
     private double mY;
@@ -24,6 +29,15 @@ public class Position {
     public void add(Position position) {
         mX += position.mX;
         mY += position.mY;
+    }
+
+    public boolean isOutOfBounds() {
+        if ((mX < BOUNDARY_LEFT) || (mX > BOUNDARY_RIGHT) || (mY < BOUNDARY_DOWN) ||
+                (mY > BOUNDARY_UP)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

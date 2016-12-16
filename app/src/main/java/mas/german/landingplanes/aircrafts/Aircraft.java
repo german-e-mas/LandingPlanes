@@ -64,6 +64,13 @@ public abstract class Aircraft {
         }
     }
 
+    /**
+     * Check if the Aircraft is farther than the position bounds.
+     */
+    public boolean isOutOfBounds() {
+        return mPosition.isOutOfBounds();
+    }
+
     public abstract boolean land(LandingSite site);
 
     public boolean equals(Aircraft aircraft) {
