@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
  * exist.
  *
  * This class does the following tasks:
- * Todo: Not part of Game Class - Generates random aircrafts in a periodic time and store them on a array.
  * - Generates Landing Sites and store them on a array.
  * - Detects collisions of aircrafts, and finishes the game if they happen.
  * - Detects landings and increases the score.
@@ -75,13 +74,18 @@ public class Game {
                     for (LandingSite site : mSites) {
                         if (aircraft.land(site)) {
                             mScore++;
-                            // I should remove the aircraft once it lands, but this causes an
-                            // exception, and Android Studio is not showing them.
-                            // mAircrafts.remove(aircraft);
+                            synchronized (mAircrafts) {
+                                mAircrafts.remove(aircraft);
+                            }
                         }
                     }
 
-                    // Todo: Delete aircrafts that are out of bounds.
+                    // Delete aircrafts that are outside the map.
+                    if (aircraft.isOutOfBounds()) {
+                        synchronized (mAircrafts) {
+                            mAircrafts.remove(aircraft);
+                        }
+                    }
                 }
             }
         }, 0, UPDATE_MS, TimeUnit.MILLISECONDS);
