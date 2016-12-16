@@ -9,9 +9,11 @@ import mas.german.landingplanes.Position;
  */
 public class LargePlane extends Aircraft {
     private static final String TAG = LargePlane.class.getSimpleName();
+    private static final int LARGE_PLANE_RADIUS = 5;
 
     public LargePlane(int speed, double direction, Position pos) {
         super(speed, direction, pos);
+        setRadius(LARGE_PLANE_RADIUS);
     }
 
     /**

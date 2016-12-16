@@ -35,6 +35,10 @@ public abstract class Aircraft {
         return mRadius;
     }
 
+    public void setRadius(int radius) {
+        mRadius = radius;
+    }
+
     public Position getPosition() {
         return mPosition;
     }
