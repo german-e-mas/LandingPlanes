@@ -1,9 +1,6 @@
-package mas.german.landingplanes.landingsites;
+package mas.german.landingplanes;
 
-import mas.german.landingplanes.aircrafts.Helicopter;
-import mas.german.landingplanes.aircrafts.LargePlane;
-import mas.german.landingplanes.aircrafts.LightPlane;
-import mas.german.landingplanes.Position;
+import android.util.Log;
 
 /**
  * Represents a Long Runway, which is a Landing Site.
@@ -11,10 +8,6 @@ import mas.german.landingplanes.Position;
  */
 public class LongRunway extends LandingSite {
     private static final String TAG = LongRunway.class.getSimpleName();
-
-    public LongRunway(Position pos) {
-        super(pos);
-    }
 
     public boolean accept(LargePlane largePlane) {
         // Planes can land on Large Runways.
