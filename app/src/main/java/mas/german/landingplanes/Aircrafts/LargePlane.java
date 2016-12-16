@@ -14,7 +14,14 @@ public class LargePlane extends Aircraft {
         super(speed, direction, pos);
     }
 
+    /**
+     * The aircraft only lands on certain sites, and also only if it's close enough to it.
+     */
     public boolean land(LandingSite site) {
-        return (getPos().distanceTo(site.getPos()) <= getRadius()) && (site.accept(this));
+        if ((getPosition().distanceTo(site.getPosition()) <= getRadius()) && (site.accept(this))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

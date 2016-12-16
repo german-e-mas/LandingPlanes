@@ -7,34 +7,23 @@ package mas.german.landingplanes;
 public class Position {
     private static final String TAG = Position.class.getSimpleName();
 
-    private int mX;
-    private int mY;
+    private double mX;
+    private double mY;
 
-    Position(int x, int y) {
-        setX(x);
-        setY(y);
-    }
-
-    public int getX() {
-        return mX;
-    }
-
-    public int getY() {
-        return mY;
-    }
-
-    public void setX(int x) {
+    public Position(double x, double y) {
         mX = x;
-    }
-
-    public void setY(int y) {
         mY = y;
     }
 
     public double distanceTo(Position pos) {
-        double u = mX - pos.getX();
-        double v = mY - pos.getY();
-        return Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2));
+        double u = mX - pos.mX;
+        double v = mY - pos.mY;
+        return Math.sqrt(u * u + v * v);
+    }
+
+    public void add(Position position) {
+        mX += position.mX;
+        mY += position.mY;
     }
 
     @Override
@@ -42,23 +31,5 @@ public class Position {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("(").append(mX).append(",").append(mY).append(")");
         return stringBuilder.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Position position = (Position) o;
-
-        if (mX != position.mX) return false;
-        return mY == position.mY;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mX;
-        result = 31 * result + mY;
-        return result;
     }
 }

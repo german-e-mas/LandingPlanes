@@ -15,6 +15,7 @@ public class ShortRunway extends LandingSite {
     public ShortRunway(Position pos) {
         super(pos);
     }
+
     public boolean accept(LargePlane largePlane) {
         // Large planes can't land on Short Runways.
         return false;

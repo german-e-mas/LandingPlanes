@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Game {
     private static final String TAG = Game.class.getSimpleName();
-    private static final int UPDATE_MS = 1000;
+    private static final int UPDATE_MS = 200;
 
     private static Game sInstance = null;
 
@@ -65,7 +65,7 @@ public class Game {
             public void run() {
                 for (Aircraft aircraft : mAircrafts) {
                     // Move the aircraft.
-                    aircraft.move();
+                    aircraft.moveForward();
 
                     // Check for any crash.
                     for (Aircraft otherAircraft : mAircrafts) {
@@ -83,6 +83,8 @@ public class Game {
                             // mAircrafts.remove(aircraft);
                         }
                     }
+
+                    // Todo: Delete aircrafts that are out of bounds.
                 }
             }
         }, 0, UPDATE_MS, TimeUnit.MILLISECONDS);
@@ -94,13 +96,14 @@ public class Game {
      */
     private void initialTest() {
         mAircrafts.add(new LargePlane(2, 0, new Position(0,0)));
-        mSites.add(new LongRunway(new Position(10,10)));
+        mSites.add(new LongRunway(new Position(20,0)));
     }
 
     /**
      * Game over procedure.
      */
     private void gameOver() {
-        // TODO
+        // TODO: Game Over Procedure:
+        // Terminate Tasks, Clean Lists, Score = 0. If there are lives, it should -1 and restart.
     }
 }
