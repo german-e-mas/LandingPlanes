@@ -1,6 +1,9 @@
-package mas.german.landingplanes;
+package mas.german.landingplanes.landingsites;
 
-import android.util.Log;
+import mas.german.landingplanes.aircrafts.Helicopter;
+import mas.german.landingplanes.aircrafts.LargePlane;
+import mas.german.landingplanes.aircrafts.LightPlane;
+import mas.german.landingplanes.Position;
 
 /**
  * Represents a Helipad, which is a Landing Site.
@@ -8,6 +11,10 @@ import android.util.Log;
  */
 public class Helipad extends LandingSite {
     private static final String TAG = Helipad.class.getSimpleName();
+
+    public Helipad(Position pos) {
+        super(pos);
+    }
 
     public boolean accept(LargePlane largePlane) {
         // Planes can't land on Helipads.

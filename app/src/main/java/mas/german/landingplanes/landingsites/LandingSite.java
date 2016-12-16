@@ -1,6 +1,9 @@
-package mas.german.landingplanes;
+package mas.german.landingplanes.landingsites;
 
-import android.util.Log;
+import mas.german.landingplanes.aircrafts.Helicopter;
+import mas.german.landingplanes.aircrafts.LargePlane;
+import mas.german.landingplanes.aircrafts.LightPlane;
+import mas.german.landingplanes.Position;
 
 /**
  * Represents a Landing Site. Specific landing sites should extend from this class.
@@ -9,23 +12,14 @@ import android.util.Log;
 public abstract class LandingSite {
     private static final String TAG = LandingSite.class.getSimpleName();
 
-    private int mWidth;
-    private int mHeight;
-
-    public void setWidth(int width) {
-        mWidth = width;
+    LandingSite(Position position) {
+        mPosition = position;
     }
 
-    public void setHeight(int height) {
-        mHeight = height;
-    }
+    private Position mPosition;
 
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
+    public Position getPosition() {
+        return mPosition;
     }
 
     public abstract boolean accept(LargePlane largePlane);
