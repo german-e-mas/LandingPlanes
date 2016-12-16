@@ -1,6 +1,6 @@
-package mas.german.landingplanes.Aircrafts;
+package mas.german.landingplanes.aircrafts;
 
-import mas.german.landingplanes.LandingSites.LandingSite;
+import mas.german.landingplanes.landingsites.LandingSite;
 import mas.german.landingplanes.Position;
 
 /**

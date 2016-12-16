@@ -1,10 +1,7 @@
 package mas.german.landingplanes;
 
-import mas.german.landingplanes.Aircrafts.*;
-import mas.german.landingplanes.LandingSites.*;
-import mas.german.landingplanes.Position;
-
-import android.util.Log;
+import mas.german.landingplanes.aircrafts.*;
+import mas.german.landingplanes.landingsites.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -17,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * exist.
  *
  * This class does the following tasks:
- * - Generates random aircrafts in a periodic time and store them on a array.
+ * Todo: Not part of Game Class - Generates random aircrafts in a periodic time and store them on a array.
  * - Generates Landing Sites and store them on a array.
  * - Detects collisions of aircrafts, and finishes the game if they happen.
  * - Detects landings and increases the score.

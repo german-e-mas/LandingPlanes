@@ -1,8 +1,8 @@
-package mas.german.landingplanes.LandingSites;
+package mas.german.landingplanes.landingsites;
 
-import mas.german.landingplanes.Aircrafts.Helicopter;
-import mas.german.landingplanes.Aircrafts.LargePlane;
-import mas.german.landingplanes.Aircrafts.LightPlane;
+import mas.german.landingplanes.aircrafts.Helicopter;
+import mas.german.landingplanes.aircrafts.LargePlane;
+import mas.german.landingplanes.aircrafts.LightPlane;
 import mas.german.landingplanes.Position;
 
 /**
