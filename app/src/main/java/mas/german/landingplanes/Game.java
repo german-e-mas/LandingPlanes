@@ -4,6 +4,7 @@ import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -27,6 +28,7 @@ public class Game {
 
     private ArrayList<Aircraft> mAircrafts;
     private ArrayList<LandingSite> mSites;
+    private Iterator<Aircraft> mIterator;
     private int mScore;
 
     private ScheduledExecutorService mExecutor;
@@ -59,7 +61,11 @@ public class Game {
         mUpdateTask = mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                for (Aircraft aircraft : mAircrafts) {
+                // Aircraft iterator for safely handle the removal of aircrafts from the list.
+                mIterator = mAircrafts.iterator();
+                while (mIterator.hasNext()) {
+                    Aircraft aircraft = mIterator.next();
+
                     // Move the aircraft.
                     aircraft.moveForward();
 
@@ -74,17 +80,13 @@ public class Game {
                     for (LandingSite site : mSites) {
                         if (aircraft.land(site)) {
                             mScore++;
-                            synchronized (mAircrafts) {
-                                mAircrafts.remove(aircraft);
-                            }
+                            mIterator.remove();
                         }
                     }
 
                     // Delete aircrafts that are outside the map.
-                    if (aircraft.isOutOfBounds()) {
-                        synchronized (mAircrafts) {
-                            mAircrafts.remove(aircraft);
-                        }
+                    if (Map.isOutOfBounds(aircraft)) {
+                        mIterator.remove();
                     }
                 }
             }
@@ -96,7 +98,7 @@ public class Game {
      * When it's close to it, the plane lands.
      */
     private void initialTest() {
-        mAircrafts.add(new LargePlane(2, 0, new Position(0,0)));
+        mAircrafts.add(new LargePlane(2, 0, new Position(0,20)));
         mSites.add(new LongRunway(new Position(20,0)));
     }
 
@@ -106,8 +108,5 @@ public class Game {
     private void gameOver() {
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
-        // Clean the airplanes and sites.
-        mAircrafts.clear();
-        mSites.clear();
     }
 }

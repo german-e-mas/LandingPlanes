@@ -12,8 +12,7 @@ public class LargePlane extends Aircraft {
     private static final int LARGE_PLANE_RADIUS = 5;
 
     public LargePlane(int speed, double direction, Position pos) {
-        super(speed, direction, pos);
-        setRadius(LARGE_PLANE_RADIUS);
+        super(speed, direction, pos, LARGE_PLANE_RADIUS);
     }
 
     /**

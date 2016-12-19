@@ -23,20 +23,17 @@ public abstract class Aircraft {
     // Position in the Map.
     private Position mPosition;
 
-    Aircraft(int speed, double direction, Position position) {
+    Aircraft(int speed, double direction, Position position, int radius) {
         sAircraftsCreated++;
         mId = sAircraftsCreated;
         mSpeed = speed;
         mDirection = direction;
         mPosition = position;
+        mRadius = radius;
     }
 
     public int getRadius() {
         return mRadius;
-    }
-
-    public void setRadius(int radius) {
-        mRadius = radius;
     }
 
     public Position getPosition() {
@@ -62,13 +59,6 @@ public abstract class Aircraft {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Check if the Aircraft is farther than the position bounds.
-     */
-    public boolean isOutOfBounds() {
-        return mPosition.isOutOfBounds();
     }
 
     public abstract boolean land(LandingSite site);

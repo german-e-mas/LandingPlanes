@@ -12,8 +12,7 @@ public class LightPlane extends Aircraft {
     private static final int LIGHT_PLANE_RADIUS = 2;
 
     public LightPlane(int speed, double direction, Position pos) {
-        super(speed, direction, pos);
-        setRadius(LIGHT_PLANE_RADIUS);
+        super(speed, direction, pos, LIGHT_PLANE_RADIUS);
     }
 
     /**

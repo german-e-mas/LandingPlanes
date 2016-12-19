@@ -12,8 +12,7 @@ public class Helicopter extends Aircraft {
     private static final int HELICOPTER_RADIUS = 3;
 
     public Helicopter(int speed, double direction, Position pos) {
-        super(speed, direction, pos);
-        setRadius(HELICOPTER_RADIUS);
+        super(speed, direction, pos, HELICOPTER_RADIUS);
     }
 
     /**
