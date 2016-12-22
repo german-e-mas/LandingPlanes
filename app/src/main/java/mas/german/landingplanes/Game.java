@@ -28,7 +28,6 @@ public class Game {
 
     private ArrayList<Aircraft> mAircrafts;
     private ArrayList<LandingSite> mSites;
-    private Iterator<Aircraft> mIterator;
     private int mScore;
 
     private ScheduledExecutorService mExecutor;
@@ -62,9 +61,9 @@ public class Game {
             @Override
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
-                mIterator = mAircrafts.iterator();
-                while (mIterator.hasNext()) {
-                    Aircraft aircraft = mIterator.next();
+                Iterator<Aircraft> iterator = mAircrafts.iterator();
+                while (iterator.hasNext()) {
+                    Aircraft aircraft = iterator.next();
 
                     // Move the aircraft.
                     aircraft.moveForward();
@@ -80,13 +79,13 @@ public class Game {
                     for (LandingSite site : mSites) {
                         if (aircraft.land(site)) {
                             mScore++;
-                            mIterator.remove();
+                            iterator.remove();
                         }
                     }
 
                     // Delete aircrafts that are outside the map.
                     if (Map.isOutOfBounds(aircraft)) {
-                        mIterator.remove();
+                        iterator.remove();
                     }
                 }
             }
