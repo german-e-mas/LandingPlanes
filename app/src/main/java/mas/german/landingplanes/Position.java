@@ -5,8 +5,6 @@ package mas.german.landingplanes;
  * are the same, calculate distance between them, check if they are close to another position, etc.
  */
 public class Position {
-    private static final String TAG = Position.class.getSimpleName();
-
     private double mX;
     private double mY;
 
@@ -24,6 +22,14 @@ public class Position {
     public void add(Position position) {
         mX += position.mX;
         mY += position.mY;
+    }
+
+    public double getX() {
+        return mX;
+    }
+
+    public double getY() {
+        return mY;
     }
 
     @Override

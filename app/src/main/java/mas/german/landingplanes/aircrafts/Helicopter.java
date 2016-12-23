@@ -9,9 +9,10 @@ import mas.german.landingplanes.Position;
  */
 public class Helicopter extends Aircraft {
     private static final String TAG = Helicopter.class.getSimpleName();
+    private static final int HELICOPTER_RADIUS = 3;
 
     public Helicopter(int speed, double direction, Position pos) {
-        super(speed, direction, pos);
+        super(speed, direction, pos, HELICOPTER_RADIUS);
     }
 
     /**

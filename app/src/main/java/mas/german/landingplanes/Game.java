@@ -4,6 +4,7 @@ import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -14,7 +15,6 @@ import java.util.concurrent.TimeUnit;
  * exist.
  *
  * This class does the following tasks:
- * Todo: Not part of Game Class - Generates random aircrafts in a periodic time and store them on a array.
  * - Generates Landing Sites and store them on a array.
  * - Detects collisions of aircrafts, and finishes the game if they happen.
  * - Detects landings and increases the score.
@@ -60,7 +60,11 @@ public class Game {
         mUpdateTask = mExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                for (Aircraft aircraft : mAircrafts) {
+                // Aircraft iterator for safely handle the removal of aircrafts from the list.
+                Iterator<Aircraft> iterator = mAircrafts.iterator();
+                while (iterator.hasNext()) {
+                    Aircraft aircraft = iterator.next();
+
                     // Move the aircraft.
                     aircraft.moveForward();
 
@@ -75,13 +79,14 @@ public class Game {
                     for (LandingSite site : mSites) {
                         if (aircraft.land(site)) {
                             mScore++;
-                            // I should remove the aircraft once it lands, but this causes an
-                            // exception, and Android Studio is not showing them.
-                            // mAircrafts.remove(aircraft);
+                            iterator.remove();
                         }
                     }
 
-                    // Todo: Delete aircrafts that are out of bounds.
+                    // Delete aircrafts that are outside the map.
+                    if (Map.isOutOfBounds(aircraft)) {
+                        iterator.remove();
+                    }
                 }
             }
         }, 0, UPDATE_MS, TimeUnit.MILLISECONDS);
@@ -92,7 +97,7 @@ public class Game {
      * When it's close to it, the plane lands.
      */
     private void initialTest() {
-        mAircrafts.add(new LargePlane(2, 0, new Position(0,0)));
+        mAircrafts.add(new LargePlane(2, 0, new Position(0,20)));
         mSites.add(new LongRunway(new Position(20,0)));
     }
 
@@ -100,7 +105,7 @@ public class Game {
      * Game over procedure.
      */
     private void gameOver() {
-        // TODO: Game Over Procedure:
-        // Terminate Tasks, Clean Lists, Score = 0. If there are lives, it should -1 and restart.
+        // Cancel the Update Task.
+        mUpdateTask.cancel(true);
     }
 }

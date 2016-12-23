@@ -10,7 +10,7 @@ import mas.german.landingplanes.Position;
 public abstract class Aircraft {
     private static final String TAG = Aircraft.class.getSimpleName();
     // Counter of the number of Aircrafts instances.
-    private static int sNumberOfInstances = 0;
+    private static int sAircraftsCreated = 0;
 
     // ID of the current Aircraft..
     private int mId;
@@ -23,12 +23,13 @@ public abstract class Aircraft {
     // Position in the Map.
     private Position mPosition;
 
-    Aircraft(int speed, double direction, Position position) {
-        sNumberOfInstances++;
-        mId = sNumberOfInstances;
+    Aircraft(int speed, double direction, Position position, int radius) {
+        sAircraftsCreated++;
+        mId = sAircraftsCreated;
         mSpeed = speed;
         mDirection = direction;
         mPosition = position;
+        mRadius = radius;
     }
 
     public int getRadius() {

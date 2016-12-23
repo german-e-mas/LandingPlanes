@@ -9,9 +9,10 @@ import mas.german.landingplanes.Position;
  */
 public class LightPlane extends Aircraft {
     private static final String TAG = LightPlane.class.getSimpleName();
+    private static final int LIGHT_PLANE_RADIUS = 2;
 
     public LightPlane(int speed, double direction, Position pos) {
-        super(speed, direction, pos);
+        super(speed, direction, pos, LIGHT_PLANE_RADIUS);
     }
 
     /**
