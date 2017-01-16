@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * - Detects landings and increases the score.
  * - Checks if an aircraft has an invalid position and takes it off the array.
  */
-public class Game {
+public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
     private static final int UPDATE_MS = 200;
 
@@ -29,9 +29,12 @@ public class Game {
     private ArrayList<Aircraft> mAircrafts;
     private ArrayList<LandingSite> mSites;
     private int mScore;
+    private Map mMap;
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
+
+    private AircraftGenerator mGenerator;
 
     /**
      * Get the unique instance of the Game class.
@@ -52,6 +55,10 @@ public class Game {
         mAircrafts = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
+        mMap = Map.getInstance(0,100,100,0);
+        mGenerator = new AircraftGenerator(mMap);
+        mGenerator.setOnAircraftGeneratedListener(this);
+        mGenerator.begin();
         mScore = 0;
 
         initialTest();
@@ -84,7 +91,7 @@ public class Game {
                     }
 
                     // Delete aircrafts that are outside the map.
-                    if (Map.isOutOfBounds(aircraft)) {
+                    if (mMap.isOutOfBounds(aircraft)) {
                         iterator.remove();
                     }
                 }
@@ -107,5 +114,13 @@ public class Game {
     private void gameOver() {
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
+    }
+
+    @Override
+    public void onAircraftGenerated(Aircraft generatedAircraft) {
+        // Synchronize the Aircraft list to prevent access during the operation.
+        synchronized (mAircrafts) {
+            mAircrafts.add(generatedAircraft);
+        }
     }
 }
