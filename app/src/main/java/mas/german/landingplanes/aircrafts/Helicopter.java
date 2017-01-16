@@ -13,7 +13,6 @@ public class Helicopter extends Aircraft {
 
     public Helicopter(int speed, double direction, Position pos) {
         super(speed, direction, pos, HELICOPTER_RADIUS);
-
     }
 
     /**
