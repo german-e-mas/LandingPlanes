@@ -52,24 +52,32 @@ public class AircraftGenerator implements Runnable {
      * Schedules the first task. The task re-schedules itself after some time defined at random.
      */
     public void begin() {
+        // Starts a new thread if the executor was shut down before.
+        if (mExecutor.isShutdown()) {
+            mExecutor = Executors.newScheduledThreadPool(1);
+        }
         mTime = TIME_MIN_MS + mRandom.nextInt(TIME_DELTA_MS);
         mExecutor.schedule(this, mTime, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Stops the random aircraft generation task. Scheduled generation tasks are canceled, as we
+     * don't want any after calling this method.
+     */
+    public void stop() {
+        mExecutor.shutdownNow();
     }
 
     /**
      * Generates a random Aircraft.
      */
     private Aircraft generateRandomAircraft() {
-        Aircraft randomAircraft;
-        Position randomPosition;
-
         // First calculate the position, as the range of directions also depends on it.
         // The aircraft starts from a side of the Map, and it's direction is set accordingly.
         double x = 0;
         double y = 0;
         double angle = 0;
-        switch (3) {
-        //switch (mRandom.nextInt(3)) {
+        switch (mRandom.nextInt(4)) {
             case 0:
                 // Starts somewhere in the bottom edge
                 x = mRandom.nextDouble()*mMap.getBoundaryRight();
@@ -97,28 +105,32 @@ public class AircraftGenerator implements Runnable {
                 y = mRandom.nextDouble()*mMap.getBoundaryTop();
                 // -90° < angle < 90°
                 angle = 90 - mRandom.nextInt(180);
+                // Keep the angle in positive values.
                 if (angle < 0) {
                     angle += 360;
                 }
                 break;
         }
+        // The angle generated is in degrees. Convert it to radians.
         angle = Math.toRadians(angle);
-        randomPosition = new Position(x, y);
+        Position randomPosition = new Position(x, y);
 
         // Calculate and instantiate the type of Aircraft.
         // Speed is set at random according to the type.
+        Aircraft randomAircraft = null;
         switch (mRandom.nextInt(3)) {
             case 0:
-                randomAircraft = new LargePlane(mRandom.nextInt(10) + 10, angle, randomPosition);
+                randomAircraft = new LargePlane(mRandom.nextInt(LargePlane.MAX_SPEED) +
+                    LargePlane.MIN_SPEED, angle, randomPosition);
                 break;
             case 1:
-                randomAircraft = new LightPlane(mRandom.nextInt(5) + 10, angle, randomPosition);
+                randomAircraft = new LightPlane(mRandom.nextInt(LightPlane.MAX_SPEED) +
+                    LightPlane.MIN_SPEED, angle, randomPosition);
                 break;
             case 2:
-                randomAircraft = new Helicopter(mRandom.nextInt(5) + 5, angle, randomPosition);
+                randomAircraft = new Helicopter(mRandom.nextInt(Helicopter.MAX_SPEED) +
+                    Helicopter.MIN_SPEED, angle, randomPosition);
                 break;
-            default:
-                randomAircraft = new LargePlane(0, angle, randomPosition);
         }
         return randomAircraft;
     }
@@ -126,7 +138,10 @@ public class AircraftGenerator implements Runnable {
     @Override
     public void run() {
         mTime = TIME_MIN_MS + mRandom.nextInt(TIME_DELTA_MS);
-        mOnAircraftGeneratedListener.onAircraftGenerated(generateRandomAircraft());
+        Aircraft randomAircraft = generateRandomAircraft();
+        if (randomAircraft != null) {
+            mOnAircraftGeneratedListener.onAircraftGenerated(randomAircraft);
+        }
         // Re-schedule the current task with the new time.
         mExecutor.schedule(this, mTime, TimeUnit.MILLISECONDS);
     }

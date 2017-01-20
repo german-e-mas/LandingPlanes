@@ -8,11 +8,14 @@ import mas.german.landingplanes.Position;
  * It can land on both long and short runways.
  */
 public class LightPlane extends Aircraft {
+    public static final int MAX_SPEED = 5;
+    public static final int MIN_SPEED = 10;
+
     private static final String TAG = LightPlane.class.getSimpleName();
-    private static final int LIGHT_PLANE_RADIUS = 2;
+    private static final int RADIUS = 2;
 
     public LightPlane(int speed, double direction, Position pos) {
-        super(speed, direction, pos, LIGHT_PLANE_RADIUS);
+        super(speed, direction, pos, RADIUS);
     }
 
     /**

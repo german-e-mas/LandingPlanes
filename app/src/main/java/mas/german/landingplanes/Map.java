@@ -3,13 +3,11 @@ package mas.german.landingplanes;
 import mas.german.landingplanes.aircrafts.Aircraft;
 
 /**
- * Singleton Class that sets to the space where the aircrafts move and the landing sites stand.
- * Contains methods to determine if a position or aircraft is outside the current boundaries.
+ * Class that sets to the space where the aircrafts move and the landing sites stand.
+ * Contains methods to determine if a position or aircraft is outside it's boundaries.
  */
 public class Map {
     private static final String TAG = Map.class.getSimpleName();
-
-    private static Map sInstance = null;
 
     // Boundaries of the map.
     private final double mBoundaryLeft;
@@ -17,19 +15,7 @@ public class Map {
     private final double mBoundaryRight;
     private final double mBoundaryBottom;
 
-    /**
-     * Get the unique instance of the Map class.
-     *
-     * @return Map instance.
-     */
-    public static Map getInstance(double left, double top, double right, double bottom) {
-        if (sInstance == null) {
-            sInstance = new Map(left, top, right, bottom);
-        }
-        return sInstance;
-    }
-
-    private Map(double left, double top, double right, double bottom) {
+    Map(double left, double top, double right, double bottom) {
         mBoundaryLeft = left;
         mBoundaryTop = top;
         mBoundaryRight = right;

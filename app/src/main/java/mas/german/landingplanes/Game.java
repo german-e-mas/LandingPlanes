@@ -55,7 +55,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mAircrafts = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
-        mMap = Map.getInstance(0,100,100,0);
+        mMap = new Map(0,100,100,0);
         mGenerator = new AircraftGenerator(mMap);
         mGenerator.setOnAircraftGeneratedListener(this);
         mGenerator.begin();
@@ -68,31 +68,33 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             @Override
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
-                Iterator<Aircraft> iterator = mAircrafts.iterator();
-                while (iterator.hasNext()) {
-                    Aircraft aircraft = iterator.next();
+                synchronized (mAircrafts) {
+                    Iterator<Aircraft> iterator = mAircrafts.iterator();
+                    while (iterator.hasNext()) {
+                        Aircraft aircraft = iterator.next();
 
-                    // Move the aircraft.
-                    aircraft.moveForward();
+                        // Move the aircraft.
+                        aircraft.moveForward();
 
-                    // Check for any crash.
-                    for (Aircraft otherAircraft : mAircrafts) {
-                        if (aircraft.crashesWith(otherAircraft)) {
-                            gameOver();
+                        // Check for any crash.
+                        for (Aircraft otherAircraft : mAircrafts) {
+                            if (aircraft.crashesWith(otherAircraft)) {
+                                gameOver();
+                            }
                         }
-                    }
 
-                    // Check for any landing.
-                    for (LandingSite site : mSites) {
-                        if (aircraft.land(site)) {
-                            mScore++;
+                        // Check for any landing.
+                        for (LandingSite site : mSites) {
+                            if (aircraft.land(site)) {
+                                mScore++;
+                                iterator.remove();
+                            }
+                        }
+
+                        // Delete aircrafts that are outside the map.
+                        if (mMap.isOutOfBounds(aircraft)) {
                             iterator.remove();
                         }
-                    }
-
-                    // Delete aircrafts that are outside the map.
-                    if (mMap.isOutOfBounds(aircraft)) {
-                        iterator.remove();
                     }
                 }
             }
@@ -104,7 +106,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * When it's close to it, the plane lands.
      */
     private void initialTest() {
-        mAircrafts.add(new LargePlane(2, 0, new Position(0,20)));
+        synchronized (mAircrafts) {
+            mAircrafts.add(new LargePlane(2, 0, new Position(0, 20)));
+        }
         mSites.add(new LongRunway(new Position(20,0)));
     }
 
@@ -112,6 +116,8 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * Game over procedure.
      */
     private void gameOver() {
+        // Stop the Generator.
+        mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
     }
