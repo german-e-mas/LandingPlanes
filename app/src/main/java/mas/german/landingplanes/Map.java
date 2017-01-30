@@ -5,6 +5,8 @@ import mas.german.landingplanes.aircrafts.Aircraft;
 /**
  * Class that sets to the space where the aircrafts move and the landing sites stand.
  * Contains methods to determine if a position or aircraft is outside it's boundaries.
+ * The start of coordinates is considered the lower left corner of the screen, with the x-axis
+ * positive to the right, and the y-axis positive towards the top.
  */
 public class Map {
     private static final String TAG = Map.class.getSimpleName();
