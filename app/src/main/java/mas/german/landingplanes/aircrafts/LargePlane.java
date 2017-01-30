@@ -8,11 +8,14 @@ import mas.german.landingplanes.Position;
  * It can only land on long runways.
  */
 public class LargePlane extends Aircraft {
+    public static final int MAX_SPEED = 20;
+    public static final int MIN_SPEED = 10;
+
     private static final String TAG = LargePlane.class.getSimpleName();
-    private static final int LARGE_PLANE_RADIUS = 5;
+    private static final int RADIUS = 5;
 
     public LargePlane(int speed, double direction, Position pos) {
-        super(speed, direction, pos, LARGE_PLANE_RADIUS);
+        super(speed, direction, pos, RADIUS);
     }
 
     /**

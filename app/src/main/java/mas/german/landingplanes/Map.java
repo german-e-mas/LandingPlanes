@@ -3,45 +3,54 @@ package mas.german.landingplanes;
 import mas.german.landingplanes.aircrafts.Aircraft;
 
 /**
- * Singleton Class that sets to the space where the aircrafts move and the landing sites stand.
- * Contains methods to determine if a position or aircraft is outside the current boundaries.
+ * Class that sets to the space where the aircrafts move and the landing sites stand.
+ * Contains methods to determine if a position or aircraft is outside it's boundaries.
+ * The start of coordinates is considered the lower left corner of the screen, with the x-axis
+ * positive to the right, and the y-axis positive towards the top.
  */
 public class Map {
     private static final String TAG = Map.class.getSimpleName();
 
-    private static Map sInstance = null;
-
     // Boundaries of the map.
-    private final double BOUNDARY_LEFT = 0;
-    private final double BOUNDARY_UP = 100;
-    private final double BOUNDARY_RIGHT = 100;
-    private final double BOUNDARY_DOWN = 0;
+    private final double mBoundaryLeft;
+    private final double mBoundaryTop;
+    private final double mBoundaryRight;
+    private final double mBoundaryBottom;
 
-    /**
-     * Get the unique instance of the Map class.
-     *
-     * @return Map instance.
-     */
-    public static Map getInstance() {
-        if (sInstance == null) {
-            sInstance = new Map();
-        }
-        return sInstance;
+    Map(double left, double top, double right, double bottom) {
+        mBoundaryLeft = left;
+        mBoundaryTop = top;
+        mBoundaryRight = right;
+        mBoundaryBottom = bottom;
     }
 
-    private Map() {
-        //
+    public double getBoundaryLeft() {
+        return mBoundaryLeft;
+    }
+
+    public double getBoundaryTop() {
+        return mBoundaryTop;
+    }
+
+    public double getBoundaryRight() {
+        return mBoundaryRight;
+    }
+
+    public double getBoundaryBottom() {
+        return mBoundaryBottom;
     }
 
     /**
      * Returns whether a position is outside the map or not.
+     * Note: This method is private as it checks only position. A public methods is available for
+     * checking individual aircrafts.
      */
-    static boolean isOutOfBounds(Position position) {
+    private boolean isOutOfBounds(Position position) {
         double x = position.getX();
         double y = position.getY();
 
-        if ((x < BOUNDARY_LEFT) || (x > BOUNDARY_RIGHT) || (y < BOUNDARY_DOWN) ||
-                (y > BOUNDARY_UP)) {
+        if ((x < mBoundaryLeft) || (x > mBoundaryRight) || (y < mBoundaryBottom) ||
+                (y > mBoundaryTop)) {
             return true;
         } else {
             return false;
@@ -51,7 +60,7 @@ public class Map {
     /**
      * Returns whether an aircraft is outside the map or not.
      */
-    static boolean isOutOfBounds(Aircraft aircraft) {
+    public boolean isOutOfBounds(Aircraft aircraft) {
         if (isOutOfBounds(aircraft.getPosition())) {
             return true;
         } else {

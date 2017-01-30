@@ -75,7 +75,8 @@ public abstract class Aircraft {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getClass().getSimpleName()).append(" Id=").append(mId);
-        stringBuilder.append(" Spd=").append(mSpeed).append(" Dir=").append(mDirection);
+        stringBuilder.append(" Spd=").append(mSpeed);
+        stringBuilder.append(" Dir=").append(Math.toDegrees(mDirection));
         stringBuilder.append(" Rad=").append(mRadius).append(" Pos=").append(mPosition.toString());
         return stringBuilder.toString();
     }

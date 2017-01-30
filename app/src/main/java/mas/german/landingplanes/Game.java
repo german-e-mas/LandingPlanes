@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * - Detects landings and increases the score.
  * - Checks if an aircraft has an invalid position and takes it off the array.
  */
-public class Game {
+public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
     private static final int UPDATE_MS = 200;
 
@@ -29,9 +29,12 @@ public class Game {
     private ArrayList<Aircraft> mAircrafts;
     private ArrayList<LandingSite> mSites;
     private int mScore;
+    private Map mMap;
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
+
+    private AircraftGenerator mGenerator;
 
     /**
      * Get the unique instance of the Game class.
@@ -52,6 +55,10 @@ public class Game {
         mAircrafts = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
+        mMap = new Map(0,100,100,0);
+        mGenerator = new AircraftGenerator(mMap);
+        mGenerator.setOnAircraftGeneratedListener(this);
+        mGenerator.begin();
         mScore = 0;
 
         initialTest();
@@ -61,31 +68,33 @@ public class Game {
             @Override
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
-                Iterator<Aircraft> iterator = mAircrafts.iterator();
-                while (iterator.hasNext()) {
-                    Aircraft aircraft = iterator.next();
+                synchronized (mAircrafts) {
+                    Iterator<Aircraft> iterator = mAircrafts.iterator();
+                    while (iterator.hasNext()) {
+                        Aircraft aircraft = iterator.next();
 
-                    // Move the aircraft.
-                    aircraft.moveForward();
+                        // Move the aircraft.
+                        aircraft.moveForward();
 
-                    // Check for any crash.
-                    for (Aircraft otherAircraft : mAircrafts) {
-                        if (aircraft.crashesWith(otherAircraft)) {
-                            gameOver();
+                        // Check for any crash.
+                        for (Aircraft otherAircraft : mAircrafts) {
+                            if (aircraft.crashesWith(otherAircraft)) {
+                                gameOver();
+                            }
                         }
-                    }
 
-                    // Check for any landing.
-                    for (LandingSite site : mSites) {
-                        if (aircraft.land(site)) {
-                            mScore++;
+                        // Check for any landing.
+                        for (LandingSite site : mSites) {
+                            if (aircraft.land(site)) {
+                                mScore++;
+                                iterator.remove();
+                            }
+                        }
+
+                        // Delete aircrafts that are outside the map.
+                        if (mMap.isOutOfBounds(aircraft)) {
                             iterator.remove();
                         }
-                    }
-
-                    // Delete aircrafts that are outside the map.
-                    if (Map.isOutOfBounds(aircraft)) {
-                        iterator.remove();
                     }
                 }
             }
@@ -97,7 +106,9 @@ public class Game {
      * When it's close to it, the plane lands.
      */
     private void initialTest() {
-        mAircrafts.add(new LargePlane(2, 0, new Position(0,20)));
+        synchronized (mAircrafts) {
+            mAircrafts.add(new LargePlane(2, 0, new Position(0, 20)));
+        }
         mSites.add(new LongRunway(new Position(20,0)));
     }
 
@@ -105,7 +116,17 @@ public class Game {
      * Game over procedure.
      */
     private void gameOver() {
+        // Stop the Generator.
+        mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
+    }
+
+    @Override
+    public void onAircraftGenerated(Aircraft generatedAircraft) {
+        // Synchronize the Aircraft list to prevent access during the operation.
+        synchronized (mAircrafts) {
+            mAircrafts.add(generatedAircraft);
+        }
     }
 }
