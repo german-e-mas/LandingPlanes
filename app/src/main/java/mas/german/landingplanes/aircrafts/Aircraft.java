@@ -15,7 +15,7 @@ public abstract class Aircraft {
     // ID of the current Aircraft..
     private int mId;
     // Length of the speed vector.
-    private int mSpeed;
+    private double mSpeed;
     // Direction is the angle of the speed vector in radians.
     private double mDirection;
     // Radius of the Aircraft.
@@ -23,7 +23,7 @@ public abstract class Aircraft {
     // Position in the Map.
     private Position mPosition;
 
-    Aircraft(int speed, double direction, Position position, int radius) {
+    Aircraft(double speed, double direction, Position position, int radius) {
         sAircraftsCreated++;
         mId = sAircraftsCreated;
         mSpeed = speed;

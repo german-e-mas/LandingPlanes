@@ -120,15 +120,15 @@ public class AircraftGenerator implements Runnable {
         Aircraft randomAircraft = null;
         switch (mRandom.nextInt(3)) {
             case 0:
-                randomAircraft = new LargePlane(mRandom.nextInt(LargePlane.MAX_SPEED
+                randomAircraft = new LargePlane(mRandom.nextDouble() * (LargePlane.MAX_SPEED
                     - LargePlane.MIN_SPEED) + LargePlane.MIN_SPEED, angle, randomPosition);
                 break;
             case 1:
-                randomAircraft = new LightPlane(mRandom.nextInt(LightPlane.MAX_SPEED
+                randomAircraft = new LightPlane(mRandom.nextDouble() * (LightPlane.MAX_SPEED
                     - LightPlane.MIN_SPEED) + LightPlane.MIN_SPEED, angle, randomPosition);
                 break;
             case 2:
-                randomAircraft = new Helicopter(mRandom.nextInt(Helicopter.MAX_SPEED
+                randomAircraft = new Helicopter(mRandom.nextDouble() * (Helicopter.MAX_SPEED
                     - Helicopter.MIN_SPEED) + Helicopter.MIN_SPEED, angle, randomPosition);
                 break;
         }
