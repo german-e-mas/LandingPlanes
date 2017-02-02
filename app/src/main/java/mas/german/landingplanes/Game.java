@@ -61,7 +61,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.begin();
         mScore = 0;
 
-        initialTest();
+        setStartingSites();
 
         // Periodic task to update the game status.
         mUpdateTask = mExecutor.scheduleAtFixedRate(new Runnable() {
@@ -102,14 +102,12 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     }
 
     /**
-     * Auxiliar method for testing. Creates a Large Plane at (0,0) in the direction of a long runway
-     * When it's close to it, the plane lands.
+     * Creates the initial Landing Sites. They are currently hardcoded in the given positions.
      */
-    private void initialTest() {
-        synchronized (mAircrafts) {
-            mAircrafts.add(new LargePlane(2, 0, new Position(0, 20)));
-        }
-        mSites.add(new LongRunway(new Position(20,0)));
+    private void setStartingSites() {
+        mSites.add(new LongRunway(new Position(50, 75)));
+        mSites.add(new ShortRunway(new Position(75, 25)));
+        mSites.add(new Helipad(new Position(25, 25)));
     }
 
     /**
