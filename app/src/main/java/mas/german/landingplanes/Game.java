@@ -26,10 +26,23 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     private static Game sInstance = null;
 
+    public interface Listener {
+        void onUpdate();
+        void onNewPlane();
+        void onCrash();
+        void onGameOver();
+        void onLand();
+    }
+
+    public void setListener(Listener listener) {
+        mListener = listener;
+    }
+
     private ArrayList<Aircraft> mAircrafts;
     private ArrayList<LandingSite> mSites;
     private int mScore;
     private Map mMap;
+    private Listener mListener;
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
@@ -79,6 +92,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                         // Check for any crash.
                         for (Aircraft otherAircraft : mAircrafts) {
                             if (aircraft.crashesWith(otherAircraft)) {
+                                if (mListener != null) {
+                                    mListener.onCrash();
+                                }
                                 gameOver();
                             }
                         }
@@ -86,6 +102,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                         // Check for any landing.
                         for (LandingSite site : mSites) {
                             if (aircraft.land(site)) {
+                                if (mListener != null) {
+                                    mListener.onLand();
+                                }
                                 mScore++;
                                 iterator.remove();
                             }
@@ -96,6 +115,10 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                             iterator.remove();
                         }
                     }
+                }
+
+                if (mListener != null) {
+                    mListener.onUpdate();
                 }
             }
         }, 0, UPDATE_MS, TimeUnit.MILLISECONDS);
@@ -120,6 +143,10 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
+
+        if (mListener != null) {
+            mListener.onGameOver();
+        }
     }
 
     @Override
@@ -127,6 +154,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         // Synchronize the Aircraft list to prevent access during the operation.
         synchronized (mAircrafts) {
             mAircrafts.add(generatedAircraft);
+        }
+        if (mListener != null) {
+            mListener.onNewPlane();
         }
     }
 }
