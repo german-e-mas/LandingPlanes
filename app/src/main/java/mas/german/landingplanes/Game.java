@@ -26,12 +26,45 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     private static Game sInstance = null;
 
+    /**
+     * Various game-related events that a listener may want to react upon.
+     */
     public interface Listener {
+        /**
+         * An update cycle was completed.
+         */
         void onUpdate();
-        void onNewPlane();
-        void onCrash();
+
+        /**
+         * Let the listener know the game is finished.
+         */
         void onGameOver();
-        void onLand();
+
+        /**
+         * A new Aircraft was created.
+         *
+         * @param aircraft  The aircraft that was generated.
+         */
+        void onAircraftGenerated(Aircraft aircraft);
+
+        /**
+         * An aircraft has landed.
+         *
+         * @param aircraft  The aircraft that landed.
+         */
+        void onLand(Aircraft aircraft);
+
+        /**
+         * An aircraft has left the game's map.
+         *
+         * @param aircraft  The aircraft that left the map.
+         */
+        void onAircraftOutsideMap(Aircraft aircraft);
+
+        /**
+         * A crash happened.
+         */
+        void onCrash(int id1, int id2);
     }
 
     public void setListener(Listener listener) {
@@ -89,21 +122,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                         // Move the aircraft.
                         aircraft.moveForward();
 
-                        // Check for any crash.
-                        for (Aircraft otherAircraft : mAircrafts) {
-                            if (aircraft.crashesWith(otherAircraft)) {
-                                if (mListener != null) {
-                                    mListener.onCrash();
-                                }
-                                gameOver();
-                            }
-                        }
-
                         // Check for any landing.
                         for (LandingSite site : mSites) {
                             if (aircraft.land(site)) {
                                 if (mListener != null) {
-                                    mListener.onLand();
+                                    mListener.onLand(aircraft);
                                 }
                                 mScore++;
                                 iterator.remove();
@@ -112,7 +135,21 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
                         // Delete aircrafts that are outside the map.
                         if (mMap.isOutOfBounds(aircraft)) {
+                            if (mListener != null) {
+                                mListener.onAircraftOutsideMap(aircraft);
+                            }
                             iterator.remove();
+                        }
+
+                        // Check for any crash.
+                        for (Aircraft otherAircraft : mAircrafts) {
+                            if (aircraft.crashesWith(otherAircraft)) {
+                                if (mListener != null) {
+                                    mListener.onCrash(aircraft.getId(), otherAircraft.getId());
+                                }
+                                gameOver();
+                                return;
+                            }
                         }
                     }
                 }
@@ -154,7 +191,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             mAircrafts.add(generatedAircraft);
         }
         if (mListener != null) {
-            mListener.onNewPlane();
+            mListener.onAircraftGenerated(generatedAircraft);
         }
     }
 }

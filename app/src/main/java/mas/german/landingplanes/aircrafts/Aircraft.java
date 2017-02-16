@@ -32,6 +32,10 @@ public abstract class Aircraft {
         mRadius = radius;
     }
 
+    public int getId() {
+        return mId;
+    }
+
     public int getRadius() {
         return mRadius;
     }
