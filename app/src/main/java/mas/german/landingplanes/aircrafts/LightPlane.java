@@ -1,5 +1,6 @@
 package mas.german.landingplanes.aircrafts;
 
+import mas.german.landingplanes.Game;
 import mas.german.landingplanes.landingsites.LandingSite;
 import mas.german.landingplanes.Position;
 
@@ -27,5 +28,10 @@ public class LightPlane extends Aircraft {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void notifyCreation(Game game) {
+        game.createdLightPlane(this);
     }
 }

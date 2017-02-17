@@ -39,6 +39,7 @@ public abstract class AircraftDrawable extends Drawable {
 
   protected void setPaintColor(int color) {
     mPaint = new Paint();
+    mPaint.setStyle(Paint.Style.FILL);
     mPaint.setColor(color);
   }
 
@@ -55,5 +56,5 @@ public abstract class AircraftDrawable extends Drawable {
   }
 
   // Update the Drawable according to the Model Data.
-  protected abstract void updateData(Aircraft aircraft);
+  protected abstract void updatePosition(Aircraft aircraft);
 }

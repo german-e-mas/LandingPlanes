@@ -1,5 +1,6 @@
 package mas.german.landingplanes.aircrafts;
 
+import mas.german.landingplanes.Game;
 import mas.german.landingplanes.landingsites.LandingSite;
 import mas.german.landingplanes.Position;
 
@@ -66,6 +67,8 @@ public abstract class Aircraft {
     }
 
     public abstract boolean land(LandingSite site);
+
+    public abstract void notifyCreation(Game game);
 
     public boolean equals(Aircraft aircraft) {
         if (mId == aircraft.mId) {

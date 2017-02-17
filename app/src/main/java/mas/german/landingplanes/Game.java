@@ -1,6 +1,5 @@
 package mas.german.landingplanes;
 
-import android.util.Log;
 import java.util.List;
 import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
@@ -24,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
-    private static final int UPDATE_MS = 15;
+    private static final int UPDATE_MS = 200;
 
     private static Game sInstance = null;
 
@@ -33,40 +32,64 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      */
     public interface Listener {
         /**
-         * An update cycle was completed.
-         */
-        void onUpdate();
-
-        /**
          * Let the listener know the game is finished.
          */
         void onGameOver();
 
         /**
-         * A new Aircraft was created.
+         * A new Aircraft was created. This encompasses all types of aircrafts.
          *
          * @param aircraft  The aircraft that was generated.
          */
         void onAircraftGenerated(Aircraft aircraft);
 
         /**
+         * A new Large Plane was created.
+         *
+         * @param largePlane  The large plane that was generated.
+         */
+        void onLargePlaneGenerated(LargePlane largePlane);
+
+        /**
+         * A new Light Plane was created.
+         *
+         * @param lightPlane  The large plane that was generated.
+         */
+        void onLightPlaneGenerated(LightPlane lightPlane);
+
+        /**
+         * A new Helicopter was created.
+         *
+         * @param helicopter  The large plane that was generated.
+         */
+        void onHelicopterGenerated(Helicopter helicopter);
+
+        /**
+         * Aircrafts were moved. Notify the listeners in order to reflect these changes.
+         */
+        void onAircraftsMoved();
+
+        /**
          * An aircraft has landed.
          *
-         * @param aircraft  The aircraft that landed.
+         * @param id    ID of the Aircraft that landed.
          */
-        void onLand(Aircraft aircraft);
+        void onLand(int id);
 
         /**
          * An aircraft has left the game's map.
          *
-         * @param aircraft  The aircraft that left the map.
+         * @param id    ID of the Aircraft that left the map.
          */
-        void onAircraftOutsideMap(Aircraft aircraft);
+        void onAircraftOutsideMap(int id);
 
         /**
          * A crash happened.
+         *
+         * @param firstId   ID of the first Aircraft involved in the crash.
+         * @param secondId  ID of the second Aircraft involved in the crash.
          */
-        void onCrash(int id1, int id2);
+        void onCrash(int firstId, int secondId);
     }
 
     public void setListener(Listener listener) {
@@ -123,12 +146,15 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
                         // Move the aircraft.
                         aircraft.moveForward();
+                        if (mListener != null) {
+                            mListener.onAircraftsMoved();
+                        }
 
                         // Check for any landing.
                         for (LandingSite site : mSites) {
                             if (aircraft.land(site)) {
                                 if (mListener != null) {
-                                    mListener.onLand(aircraft);
+                                    mListener.onLand(aircraft.getId());
                                 }
                                 mScore++;
                                 iterator.remove();
@@ -138,7 +164,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                         // Delete aircrafts that are outside the map.
                         if (mMap.isOutOfBounds(aircraft)) {
                             if (mListener != null) {
-                                mListener.onAircraftOutsideMap(aircraft);
+                                mListener.onAircraftOutsideMap(aircraft.getId());
                             }
                             iterator.remove();
                         }
@@ -154,10 +180,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                             }
                         }
                     }
-                }
-
-                if (mListener != null) {
-                    mListener.onUpdate();
                 }
             }
         }, 0, UPDATE_MS, TimeUnit.MILLISECONDS);
@@ -180,13 +202,16 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
-
+        // Notify the Listener about the event.
         if (mListener != null) {
             mListener.onGameOver();
         }
     }
 
-    public List<Aircraft> getAircrafts() {
+    /**
+     * Return the list of currently existing Aircraft.
+     */
+    public synchronized List<Aircraft> getAircraft() {
         return mAircrafts;
     }
 
@@ -204,8 +229,41 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         synchronized (mAircrafts) {
             mAircrafts.add(generatedAircraft);
         }
+        // Notify the Listener of the creation of a new Aircraft.
         if (mListener != null) {
             mListener.onAircraftGenerated(generatedAircraft);
+        }
+        // Make the Aircraft notify itself. It's subtypes will call the corresponding method.
+        generatedAircraft.notifyCreation(this);
+    }
+
+    /**
+     * Notify the listener that a Large Plane was created. This is called from the corresponding
+     * subclass of Aircraft, after calling their notifyCreation method.
+     */
+    public void createdLargePlane(LargePlane largePlane) {
+        if (mListener != null) {
+            mListener.onLargePlaneGenerated(largePlane);
+        }
+    }
+
+    /**
+     * Notify the listener that a Light Plane was created. This is called from the corresponding
+     * subclass of Aircraft, after calling their notifyCreation method.
+     */
+    public void createdLightPlane(LightPlane lightPlane) {
+        if (mListener != null) {
+            mListener.onLightPlaneGenerated(lightPlane);
+        }
+    }
+
+    /**
+     * Notify the listener that a Helicopter was created. This is called from the corresponding
+     * subclass of Aircraft, after calling their notifyCreation method.
+     */
+    public void createdHelicopter(Helicopter helicopter) {
+        if (mListener != null) {
+            mListener.onHelicopterGenerated(helicopter);
         }
     }
 }
