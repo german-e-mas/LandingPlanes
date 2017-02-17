@@ -3,9 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="largeAircraft">#ff6600</color>
+    <color name="largeAircraft">#ff6666</color>
     <color name="lightAircraft">#6666ff</color>
-    <color name="helicopter">#cc9900</color>
-    <color name="grass">#99ff99</color>
+    <color name="helicopter">#999900</color>
+    <color name="grass">#99ffaa</color>
     <color name="landingSite">#AAAAAA</color>
 </resources>

@@ -6,7 +6,9 @@
     tools:context="mas.german.landingplanes.MainActivity">
 
     <mas.german.landingplanes.view.AerodromeView
-        android:id="@+id/aerodrome_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:id="@+id/view_aerodrome"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="@dimen/aerodrome_size"
+        android:layout_height="@dimen/aerodrome_size"/>
 </RelativeLayout>
