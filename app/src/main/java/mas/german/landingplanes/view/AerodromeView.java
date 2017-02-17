@@ -119,7 +119,7 @@ public class AerodromeView extends ImageView implements Game.Listener {
   }
 
   @Override
-  public void onAircraftsMoved() {
+  public void onUpdateCycle() {
     synchronized (mDrawables.values()) {
       for (Aircraft modelAircraft : mGame.getAircraft()) {
         mDrawables.get(modelAircraft.getId()).updatePosition(modelAircraft);

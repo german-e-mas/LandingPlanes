@@ -65,9 +65,10 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onHelicopterGenerated(Helicopter helicopter);
 
         /**
-         * Aircrafts were moved. Notify the listeners in order to reflect these changes.
+         * An update cycle was completed. Notify the listeners in order to reflect changes in
+         * position of the Aircrafts.
          */
-        void onAircraftsMoved();
+        void onUpdateCycle();
 
         /**
          * An aircraft has landed.
@@ -143,12 +144,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                     Iterator<Aircraft> iterator = mAircrafts.iterator();
                     while (iterator.hasNext()) {
                         Aircraft aircraft = iterator.next();
-
-                        // Move the aircraft.
                         aircraft.moveForward();
-                        if (mListener != null) {
-                            mListener.onAircraftsMoved();
-                        }
 
                         // Check for any landing.
                         for (LandingSite site : mSites) {
@@ -179,6 +175,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                                 return;
                             }
                         }
+                    }
+
+                    // An update cycle was finished.
+                    if (mListener != null) {
+                        mListener.onUpdateCycle();
                     }
                 }
             }
