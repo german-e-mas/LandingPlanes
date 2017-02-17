@@ -15,8 +15,8 @@ import mas.german.landingplanes.aircrafts.LightPlane;
  */
 public class AircraftGenerator implements Runnable {
     private static final String TAG = AircraftGenerator.class.getSimpleName();
-    private final int TIME_MIN_MS = 1000;
-    private final int TIME_DELTA_MS = 1000;
+    private final int TIME_MIN_MS = 500;
+    private final int TIME_DELTA_MS = 500;
 
     private ScheduledExecutorService mExecutor;
 
@@ -120,16 +120,16 @@ public class AircraftGenerator implements Runnable {
         Aircraft randomAircraft = null;
         switch (mRandom.nextInt(3)) {
             case 0:
-                randomAircraft = new LargePlane(mRandom.nextDouble() * (LargePlane.MAX_SPEED
-                    - LargePlane.MIN_SPEED) + LargePlane.MIN_SPEED, angle, randomPosition);
+                randomAircraft = new LargePlane(0.2 * (mRandom.nextDouble() * (LargePlane.MAX_SPEED
+                    - LargePlane.MIN_SPEED) + LargePlane.MIN_SPEED), angle, randomPosition);
                 break;
             case 1:
-                randomAircraft = new LightPlane(mRandom.nextDouble() * (LightPlane.MAX_SPEED
-                    - LightPlane.MIN_SPEED) + LightPlane.MIN_SPEED, angle, randomPosition);
+                randomAircraft = new LightPlane(0.2 * (mRandom.nextDouble() * (LightPlane.MAX_SPEED
+                    - LightPlane.MIN_SPEED) + LightPlane.MIN_SPEED), angle, randomPosition);
                 break;
             case 2:
-                randomAircraft = new Helicopter(mRandom.nextDouble() * (Helicopter.MAX_SPEED
-                    - Helicopter.MIN_SPEED) + Helicopter.MIN_SPEED, angle, randomPosition);
+                randomAircraft = new Helicopter(0.2 * (mRandom.nextDouble() * (Helicopter.MAX_SPEED
+                    - Helicopter.MIN_SPEED) + Helicopter.MIN_SPEED), angle, randomPosition);
                 break;
         }
         return randomAircraft;

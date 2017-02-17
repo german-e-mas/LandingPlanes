@@ -9,10 +9,10 @@ import mas.german.landingplanes.Position;
  */
 public abstract class Aircraft {
     private static final String TAG = Aircraft.class.getSimpleName();
-    // Counter of the number of Aircrafts instances.
+    // Counter of the number of Aircrafts instances. Used for assigning the IDs.
     private static int sAircraftsCreated = 0;
 
-    // ID of the current Aircraft..
+    // ID of the current Aircraft. Used Integer for simplicity.
     private int mId;
     // Length of the speed vector.
     private double mSpeed;

@@ -40,6 +40,14 @@ public class Map {
         return mBoundaryBottom;
     }
 
+    public double getWidth() {
+        return mBoundaryRight - mBoundaryLeft;
+    }
+
+    public double getHeight() {
+        return mBoundaryTop - mBoundaryBottom;
+    }
+
     /**
      * Returns whether a position is outside the map or not.
      * Note: This method is private as it checks only position. A public methods is available for
