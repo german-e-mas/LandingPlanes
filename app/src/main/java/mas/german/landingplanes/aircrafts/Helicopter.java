@@ -8,13 +8,13 @@ import mas.german.landingplanes.Position;
  * It can only land on helipads.
  */
 public class Helicopter extends Aircraft {
-    public static final int MAX_SPEED = 10;
-    public static final int MIN_SPEED = 5;
-
     private static final String TAG = Helicopter.class.getSimpleName();
+
+    public static final double MAX_SPEED = 4;
+    public static final double MIN_SPEED = 2.5;
     private static final int RADIUS = 3;
 
-    public Helicopter(int speed, double direction, Position pos) {
+    public Helicopter(double speed, double direction, Position pos) {
         super(speed, direction, pos, RADIUS);
     }
 
