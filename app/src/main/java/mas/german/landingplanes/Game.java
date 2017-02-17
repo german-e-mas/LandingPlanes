@@ -1,5 +1,7 @@
 package mas.german.landingplanes;
 
+import android.util.Log;
+import java.util.List;
 import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
 
@@ -22,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
-    private static final int UPDATE_MS = 200;
+    private static final int UPDATE_MS = 15;
 
     private static Game sInstance = null;
 
@@ -182,6 +184,18 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         if (mListener != null) {
             mListener.onGameOver();
         }
+    }
+
+    public List<Aircraft> getAircrafts() {
+        return mAircrafts;
+    }
+
+    public List<LandingSite> getSites() {
+        return mSites;
+    }
+
+    public Map getMap() {
+        return mMap;
     }
 
     @Override
