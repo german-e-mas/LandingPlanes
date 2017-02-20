@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
-    private static final int UPDATE_MS = 200;
+    private static final int UPDATE_MS = 30;
 
     private static Game sInstance = null;
 
@@ -99,6 +99,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     private ArrayList<Aircraft> mAircrafts;
     private ArrayList<LandingSite> mSites;
+
     private int mScore;
     private Map mMap;
     private Listener mListener;
@@ -144,7 +145,8 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                     Iterator<Aircraft> iterator = mAircrafts.iterator();
                     while (iterator.hasNext()) {
                         Aircraft aircraft = iterator.next();
-                        aircraft.moveForward();
+                        // Sample time is the rate of the Task, which is fixed at UPDATE_MS.
+                        aircraft.moveForward(UPDATE_MS);
 
                         // Check for any landing.
                         for (LandingSite site : mSites) {
@@ -162,6 +164,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                             if (mListener != null) {
                                 mListener.onAircraftOutsideMap(aircraft.getId());
                             }
+
                             iterator.remove();
                         }
 

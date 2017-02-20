@@ -15,7 +15,7 @@ public abstract class Aircraft {
 
     // ID of the current Aircraft. Used Integer for simplicity.
     private int mId;
-    // Length of the speed vector.
+    // Length of the speed vector, in Map Units per millisecond.
     private double mSpeed;
     // Direction is the angle of the speed vector in radians.
     private double mDirection;
@@ -47,10 +47,12 @@ public abstract class Aircraft {
 
     /**
      * Updates the aircraft's position according to it's speed and direction.
+     *
+     * @param sampleTime    Time span in milliseconds, used to calculate the distance moved.
      */
-    public void moveForward() {
-        Position deltaPosition = new Position(mSpeed * Math.cos(mDirection),
-                mSpeed * Math.sin(mDirection));
+    public void moveForward(long sampleTime) {
+        Position deltaPosition = new Position(mSpeed * sampleTime * Math.cos(mDirection),
+            mSpeed * sampleTime * Math.sin(mDirection));
         mPosition.add(deltaPosition);
     }
 
