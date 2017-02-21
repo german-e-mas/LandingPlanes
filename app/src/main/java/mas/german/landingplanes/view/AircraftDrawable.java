@@ -1,6 +1,9 @@
 package mas.german.landingplanes.view;
 
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import mas.german.landingplanes.Position;
 import mas.german.landingplanes.aircrafts.Aircraft;
@@ -15,8 +18,8 @@ public abstract class AircraftDrawable extends Drawable {
   private int mId;
 
   // Position of the Drawable.
-  private double mX;
-  private double mY;
+  private float mX;
+  private float mY;
 
   // Radius of the Aircraft
   private float mRadius;
@@ -28,13 +31,25 @@ public abstract class AircraftDrawable extends Drawable {
     mId = id;
   }
 
+  protected int getId() {
+    return mId;
+  }
+
   protected void setPosition(Position position) {
-    mX = position.getX();
-    mY = position.getY();
+    mX = (float) position.getX();
+    mY = (float) position.getY();
+  }
+
+  protected Position getPosition() {
+    return new Position(mX, mY);
   }
 
   protected void setRadius(float radius) {
     mRadius = radius;
+  }
+
+  protected float getRadius() {
+    return mRadius;
   }
 
   protected void setPaintColor(int color) {
@@ -43,18 +58,35 @@ public abstract class AircraftDrawable extends Drawable {
     mPaint.setColor(color);
   }
 
-  protected Position getPosition() {
-    return new Position(mX, mY);
+  /**
+   * Updates the position of the drawable in order to reflect the Model data.
+   *
+   * @param aircraft  The Aircraft Model to represent.
+   */
+  protected void updatePosition(Aircraft aircraft) {
+    setPosition(aircraft.getPosition());
   }
 
-  protected float getRadius() {
-    return mRadius;
+  @Override
+  public void draw(Canvas canvas) {
+    canvas.save();
+    canvas.drawCircle(mX, mY, mRadius, mPaint);
+    canvas.restore();
   }
 
-  protected Paint getPaint() {
-    return mPaint;
+  @Override
+  public void setAlpha(int i) {
+    // Currently not implemented, but it must be overriden regardless.
   }
 
-  // Update the Drawable according to the Model Data.
-  protected abstract void updatePosition(Aircraft aircraft);
+  @Override
+  public void setColorFilter(ColorFilter colorFilter) {
+    // Currently not implemented, but it must be overriden regardless.
+  }
+
+  @Override
+  public int getOpacity() {
+    // Currently not implemented, but it must be overriden regardless.
+    return PixelFormat.UNKNOWN;
+  }
 }
