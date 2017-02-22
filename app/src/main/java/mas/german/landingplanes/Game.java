@@ -121,6 +121,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
+    private long mPreviousTimestamp = 0;
 
     private AircraftGenerator mGenerator;
 
@@ -162,11 +163,17 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
                 synchronized (mAircraftList) {
+                    // Calculate the time between calls, in order to move all aircraft accordingly.
+                    long timestamp = System.currentTimeMillis();
+                    long elapsedTime = timestamp - mPreviousTimestamp;
+                    mPreviousTimestamp = timestamp;
+
                     Iterator<Aircraft> iterator = mAircraftList.iterator();
                     while (iterator.hasNext()) {
                         Aircraft aircraft = iterator.next();
-                        // Sample time is the rate of the Task, which is fixed at UPDATE_MS.
-                        aircraft.moveForward(UPDATE_MS);
+                        // The task runs at UPDATE_MS but it is not perfect. We use the previously
+                        // calculated elapsed time between iterations.
+                        aircraft.moveForward(elapsedTime);
 
                         // Check for any crash.
                         for (Aircraft otherAircraft : mAircraftList) {
