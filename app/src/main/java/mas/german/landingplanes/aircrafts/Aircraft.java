@@ -21,7 +21,7 @@ public abstract class Aircraft {
     private double mDirection;
     // Radius of the Aircraft.
     private int mRadius;
-    // Position in the Map.
+    // Position in the Aerodrome.
     private Position mPosition;
 
     Aircraft(double speed, double direction, Position position, int radius) {
@@ -43,6 +43,10 @@ public abstract class Aircraft {
 
     public Position getPosition() {
         return mPosition;
+    }
+
+    public double getDirection() {
+        return mDirection;
     }
 
     /**

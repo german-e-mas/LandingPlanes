@@ -12,8 +12,8 @@ import mas.german.landingplanes.Position;
 public class ShortRunway extends LandingSite {
     private static final String TAG = ShortRunway.class.getSimpleName();
 
-    public ShortRunway(Position pos) {
-        super(pos);
+    public ShortRunway(Position pos, double centerAngle, double apertureAngle) {
+        super(pos, centerAngle, apertureAngle);
     }
 
     public boolean accept(LargePlane largePlane) {

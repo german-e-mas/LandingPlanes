@@ -6,20 +6,23 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import mas.german.landingplanes.Game;
 import mas.german.landingplanes.R;
-import mas.german.landingplanes.aircrafts.Aircraft;
 import mas.german.landingplanes.aircrafts.Helicopter;
 import mas.german.landingplanes.aircrafts.LargePlane;
 import mas.german.landingplanes.aircrafts.LightPlane;
-import mas.german.landingplanes.landingsites.LandingSite;
+import mas.german.landingplanes.landingsites.Helipad;
+import mas.german.landingplanes.landingsites.LongRunway;
+import mas.german.landingplanes.landingsites.ShortRunway;
 
 /**
  * This view represents the field where the landing sites stand and where the aircraft fly.
  */
-public class AerodromeView extends ImageView implements Game.Listener {
+public class AerodromeView extends ImageView implements Game.EventsListener {
   private static final String TAG = AerodromeView.class.getSimpleName();
 
   // Each plane need Context in order to access the resources and get their colours.
@@ -32,12 +35,13 @@ public class AerodromeView extends ImageView implements Game.Listener {
   // Game instance that contains the Model data.
   private Game mGame = Game.getInstance();
 
-  // Map Matrix used to fit the model into the view.
-  private Matrix mMap = new Matrix();
-  private boolean mIsMapLoaded = false;
+  // Aerodrome Matrix used to fit the model into the view.
+  private Matrix mAerodrome = new Matrix();
+  private boolean mIsAerodromeLoaded = false;
 
-  // Map of Aircraft Drawables. They represent the aircrafts from the model.
+  // Map of Aircraft Drawables. They represent the aircraft from the model.
   private Map<Integer, AircraftDrawable> mDrawables = new HashMap<>();
+  private List<LandingSiteDrawable> mSiteDrawables = new ArrayList<>();
 
   public AerodromeView(Context context) {
     super(context);
@@ -62,14 +66,14 @@ public class AerodromeView extends ImageView implements Game.Listener {
   }
 
   /**
-   * Auxiliary method used to scale the Map Matrix in order to fit the screen.
+   * Auxiliary method used to scale the Aerodrome Matrix in order to fit the screen.
    * Note that this method is only called once, as the view's size is constant throughout the game.
    */
-  private void prepareMap() {
-    float scaleX = getWidth() / (float) (mGame.getMap().getWidth());
-    float scaleY = getHeight() / (float) (mGame.getMap().getHeight());
-    mMap.postScale(scaleX, scaleY);
-    mIsMapLoaded = true;
+  private void prepareAerodrome() {
+    float scaleX = getWidth() / (float) (mGame.getAerodrome().getWidth());
+    float scaleY = getHeight() / (float) (mGame.getAerodrome().getHeight());
+    mAerodrome.postScale(scaleX, scaleY);
+    mIsAerodromeLoaded = true;
   }
 
   /**
@@ -89,26 +93,23 @@ public class AerodromeView extends ImageView implements Game.Listener {
   protected void onDraw(Canvas canvas) {
     canvas.save();
 
-    // Set the Map Matrix only once.
-    if (!mIsMapLoaded) {
-      prepareMap();
+    // Set the Aerodrome Matrix only once.
+    if (!mIsAerodromeLoaded) {
+      prepareAerodrome();
     }
 
-    // Concatenate the Canvas with the Map.
-    canvas.concat(mMap);
+    // Concatenate the Canvas with the Aerodrome Matrix.
+    canvas.concat(mAerodrome);
 
-    // Draw the Map's Background.
+    // Draw the Aerodrome's Background.
     canvas.drawRect(0, 0, getWidth(), getHeight(), mBackgroundPaint);
 
     // Draw the Landing Sites.
-    for (LandingSite site : mGame.getSites()) {
-      float cx = (float) site.getPosition().getX();
-      float cy = (float) site.getPosition().getY();
-      float radius = 1f;
-      canvas.drawCircle(cx, cy, radius, mSitePaint);
+    for (LandingSiteDrawable site : mSiteDrawables) {
+      site.draw(canvas);
     }
 
-    // Draw the Aircrafts.
+    // Draw all Aircraft.
     synchronized (mDrawables.values()) {
       for (AircraftDrawable aircraft : mDrawables.values()) {
         aircraft.draw(canvas);
@@ -119,10 +120,11 @@ public class AerodromeView extends ImageView implements Game.Listener {
   }
 
   @Override
-  public void onUpdateCycle() {
+  public void onAircraftPositionChanged() {
+    // Synchronize the Drawable's list, so we make sure we update all the positions safely.
     synchronized (mDrawables.values()) {
-      for (Aircraft modelAircraft : mGame.getAircraft()) {
-        mDrawables.get(modelAircraft.getId()).updatePosition(modelAircraft);
+      for (int id : mGame.getAircraftPositionMap().keySet()) {
+        mDrawables.get(id).setPosition(mGame.getAircraftPositionMap().get(id));
       }
     }
     postInvalidate();
@@ -136,9 +138,18 @@ public class AerodromeView extends ImageView implements Game.Listener {
   }
 
   @Override
-  public void onAircraftGenerated(Aircraft aircraft) {
-    // A generic Aircraft was created. This will be called before the specific subtypes of Aircraft
-    // notify their creation.
+  public void onLongRunwayCreated(LongRunway longRunway) {
+    mSiteDrawables.add(new LongRunwayDrawable(mContext, longRunway));
+  }
+
+  @Override
+  public void onShortRunwayCreated(ShortRunway shortRunway) {
+    mSiteDrawables.add(new ShortRunwayDrawable(mContext, shortRunway));
+  }
+
+  @Override
+  public void onHelipadCreated(Helipad helipad) {
+    mSiteDrawables.add(new HelipadDrawable(mContext, helipad));
   }
 
   @Override
@@ -171,7 +182,7 @@ public class AerodromeView extends ImageView implements Game.Listener {
   }
 
   @Override
-  public void onAircraftOutsideMap(int id) {
+  public void onAircraftOutsideAerodrome(int id) {
     removeAircraftDrawableById(id);
   }
 

@@ -1,6 +1,5 @@
 package mas.german.landingplanes.view;
 
-import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
@@ -8,60 +7,37 @@ import android.graphics.drawable.Drawable;
 import mas.german.landingplanes.Position;
 
 /**
- * Abstract class to represent all types of aircraft to be drawn on the View.
+ * Abstract class to represent all types of landing sites to be drawn on the View.
  */
-public abstract class AircraftDrawable extends Drawable {
-  private static final String TAG = AircraftDrawable.class.getSimpleName();
+public abstract class LandingSiteDrawable extends Drawable {
+  private static final String TAG = LandingSiteDrawable.class.getSimpleName();
+  // Width measure in Aerodrome Units.
+  protected static final float WIDTH = 6f;
 
-  // ID of the Model Aircraft
-  private int mId;
-
-  // Position of the Drawable.
+  // Entrance Position of the Landing Site.
   private float mX;
   private float mY;
 
-  // Radius of the Aircraft
-  private float mRadius;
-
-  // Paint to represent the Aircraft
+  // Paint to represent the Landing Site.
   private Paint mPaint;
-
-  protected void setId(int id) {
-    mId = id;
-  }
-
-  protected int getId() {
-    return mId;
-  }
 
   protected void setPosition(Position position) {
     mX = (float) position.getX();
     mY = (float) position.getY();
   }
 
+  protected Paint getPaint() {
+    return mPaint;
+  }
+
   protected Position getPosition() {
     return new Position(mX, mY);
-  }
-
-  protected void setRadius(float radius) {
-    mRadius = radius;
-  }
-
-  protected float getRadius() {
-    return mRadius;
   }
 
   protected void setPaintColor(int color) {
     mPaint = new Paint();
     mPaint.setStyle(Paint.Style.FILL);
     mPaint.setColor(color);
-  }
-
-  @Override
-  public void draw(Canvas canvas) {
-    canvas.save();
-    canvas.drawCircle(mX, mY, mRadius, mPaint);
-    canvas.restore();
   }
 
   @Override

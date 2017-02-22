@@ -12,8 +12,9 @@ import mas.german.landingplanes.Position;
 public class Helipad extends LandingSite {
     private static final String TAG = Helipad.class.getSimpleName();
 
+    // Helipads can accept helicopters from all angles.
     public Helipad(Position pos) {
-        super(pos);
+        super(pos, 0, 2 * Math.PI);
     }
 
     public boolean accept(LargePlane largePlane) {

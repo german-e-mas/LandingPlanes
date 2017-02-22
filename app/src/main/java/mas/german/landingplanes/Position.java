@@ -4,7 +4,7 @@ package mas.german.landingplanes;
  * This class represents the position of something. Provides methods to determine if two positions
  * are the same, calculate distance between them, check if they are close to another position, etc.
  */
-public class Position {
+public class Position implements Cloneable {
     private double mX;
     private double mY;
 
@@ -37,5 +37,13 @@ public class Position {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("(").append(mX).append(",").append(mY).append(")");
         return stringBuilder.toString();
+    }
+
+    /**
+     * Returns a clone of the Position.
+     */
+    @Override
+    public Position clone() {
+        return new Position(mX, mY);
     }
 }
