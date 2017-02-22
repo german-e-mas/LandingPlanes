@@ -2,7 +2,6 @@ package mas.german.landingplanes;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
 import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
 
@@ -111,7 +110,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     public void setListener(EventsListener eventsListener) {
         mEventsListener = eventsListener;
-        setStartingSites();
     }
 
     private ArrayList<Aircraft> mAircraftList;
@@ -138,17 +136,24 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     }
 
     private Game() {
-        // Creates the periodic Tasks.
+        // Creates the executor Thread Pool.
         mExecutor = Executors.newScheduledThreadPool(1);
-        // Containers for all the active aircrafts and landing sites.
+        // Containers for all the active aircraft and landing sites.
         mAircraftList = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
         mAerodrome = new Aerodrome(0,100,100,0);
         mGenerator = new AircraftGenerator(mAerodrome);
         mGenerator.setOnAircraftGeneratedListener(this);
+    }
+
+    /**
+     * Start the Game. This resets the score and starts the periodic tasks.
+     */
+    public void initialize() {
         mGenerator.begin();
         mScore = 0;
+        setStartingSites();
 
         // Periodic task to update the game status.
         mUpdateTask = mExecutor.scheduleAtFixedRate(new Runnable() {
