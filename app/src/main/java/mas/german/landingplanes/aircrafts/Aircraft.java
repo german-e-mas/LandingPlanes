@@ -45,6 +45,10 @@ public abstract class Aircraft {
         return mPosition;
     }
 
+    public double getDirection() {
+        return mDirection;
+    }
+
     /**
      * Updates the aircraft's position according to it's speed and direction.
      */

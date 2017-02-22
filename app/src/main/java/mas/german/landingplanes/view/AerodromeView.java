@@ -6,14 +6,18 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import mas.german.landingplanes.Game;
 import mas.german.landingplanes.R;
 import mas.german.landingplanes.aircrafts.Helicopter;
 import mas.german.landingplanes.aircrafts.LargePlane;
 import mas.german.landingplanes.aircrafts.LightPlane;
-import mas.german.landingplanes.landingsites.LandingSite;
+import mas.german.landingplanes.landingsites.Helipad;
+import mas.german.landingplanes.landingsites.LongRunway;
+import mas.german.landingplanes.landingsites.ShortRunway;
 
 /**
  * This view represents the field where the landing sites stand and where the aircraft fly.
@@ -37,6 +41,7 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
 
   // Map of Aircraft Drawables. They represent the aircraft from the model.
   private Map<Integer, AircraftDrawable> mDrawables = new HashMap<>();
+  private List<LandingSiteDrawable> mSiteDrawables = new ArrayList<>();
 
   public AerodromeView(Context context) {
     super(context);
@@ -100,14 +105,11 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     canvas.drawRect(0, 0, getWidth(), getHeight(), mBackgroundPaint);
 
     // Draw the Landing Sites.
-    for (LandingSite site : mGame.getSites()) {
-      float cx = (float) site.getPosition().getX();
-      float cy = (float) site.getPosition().getY();
-      float radius = 1f;
-      canvas.drawCircle(cx, cy, radius, mSitePaint);
+    for (LandingSiteDrawable site : mSiteDrawables) {
+      site.draw(canvas);
     }
 
-    // Draw the Aircrafts.
+    // Draw all Aircraft.
     synchronized (mDrawables.values()) {
       for (AircraftDrawable aircraft : mDrawables.values()) {
         aircraft.draw(canvas);
@@ -133,6 +135,21 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     // Game Over visual effect.
     mBackgroundPaint.setColor(getResources().getColor(R.color.landingSite));
     postInvalidate();
+  }
+
+  @Override
+  public void onLongRunwayCreated(LongRunway longRunway) {
+    mSiteDrawables.add(new LongRunwayDrawable(mContext, longRunway));
+  }
+
+  @Override
+  public void onShortRunwayCreated(ShortRunway shortRunway) {
+    mSiteDrawables.add(new ShortRunwayDrawable(mContext, shortRunway));
+  }
+
+  @Override
+  public void onHelipadCreated(Helipad helipad) {
+    mSiteDrawables.add(new HelipadDrawable(mContext, helipad));
   }
 
   @Override

@@ -39,6 +39,27 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onGameOver();
 
         /**
+         * A new Long Runway was created.
+         *
+         * @param longRunway  The long runway created.
+         */
+        void onLongRunwayCreated(LongRunway longRunway);
+
+        /**
+         * A new Short Runway was created.
+         *
+         * @param shortRunway  The short runway created.
+         */
+        void onShortRunwayCreated(ShortRunway shortRunway);
+
+        /**
+         * A new Helipad was created.
+         *
+         * @param helipad   The helipad created.
+         */
+        void onHelipadCreated(Helipad helipad);
+
+        /**
          * A new Large Plane was created.
          *
          * @param largePlane  The large plane that was generated.
@@ -90,6 +111,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     public void setListener(EventsListener eventsListener) {
         mEventsListener = eventsListener;
+        setStartingSites();
     }
 
     private ArrayList<Aircraft> mAircraftList;
@@ -127,8 +149,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.setOnAircraftGeneratedListener(this);
         mGenerator.begin();
         mScore = 0;
-
-        setStartingSites();
 
         // Periodic task to update the game status.
         mUpdateTask = mExecutor.scheduleAtFixedRate(new Runnable() {
@@ -185,9 +205,23 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * Creates the initial Landing Sites. They are currently hardcoded in the given positions.
      */
     private void setStartingSites() {
-        mSites.add(new LongRunway(new Position(50, 75)));
-        mSites.add(new ShortRunway(new Position(75, 25)));
-        mSites.add(new Helipad(new Position(25, 25)));
+        LongRunway longRunway = new LongRunway(new Position(50, 75), 0, Math.toRadians(90));
+        mSites.add(longRunway);
+        if (mEventsListener != null) {
+            mEventsListener.onLongRunwayCreated(longRunway);
+        }
+
+        ShortRunway shortRunway = new ShortRunway(new Position(75, 25), Math.toRadians(90), Math.toRadians(90));
+        mSites.add(shortRunway);
+        if (mEventsListener != null) {
+            mEventsListener.onShortRunwayCreated(shortRunway);
+        }
+
+        Helipad helipad = new Helipad(new Position(25, 25));
+        mSites.add(helipad);
+        if (mEventsListener != null) {
+            mEventsListener.onHelipadCreated(helipad);
+        }
     }
 
     /**
@@ -216,10 +250,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             }
         }
         return positionMap;
-    }
-
-    public List<LandingSite> getSites() {
-        return mSites;
     }
 
     public Aerodrome getAerodrome() {
