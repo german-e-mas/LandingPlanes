@@ -58,15 +58,6 @@ public abstract class AircraftDrawable extends Drawable {
     mPaint.setColor(color);
   }
 
-  /**
-   * Updates the position of the drawable in order to reflect the Model data.
-   *
-   * @param aircraft  The Aircraft Model to represent.
-   */
-  protected void updatePosition(Aircraft aircraft) {
-    setPosition(aircraft.getPosition());
-  }
-
   @Override
   public void draw(Canvas canvas) {
     canvas.save();

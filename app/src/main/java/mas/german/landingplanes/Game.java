@@ -1,5 +1,7 @@
 package mas.german.landingplanes;
 
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  *
  * This class does the following tasks:
  * - Generates Landing Sites and store them on a array.
- * - Detects collisions of aircrafts, and finishes the game if they happen.
+ * - Detects collisions of aircraft, and finishes the game if they happen.
  * - Detects landings and increases the score.
  * - Checks if an aircraft has an invalid position and takes it off the array.
  */
@@ -30,18 +32,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     /**
      * Various game-related events that a listener may want to react upon.
      */
-    public interface Listener {
+    public interface EventsListener {
         /**
          * Let the listener know the game is finished.
          */
         void onGameOver();
-
-        /**
-         * A new Aircraft was created. This encompasses all types of aircrafts.
-         *
-         * @param aircraft  The aircraft that was generated.
-         */
-        void onAircraftGenerated(Aircraft aircraft);
 
         /**
          * A new Large Plane was created.
@@ -65,10 +60,10 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onHelicopterGenerated(Helicopter helicopter);
 
         /**
-         * An update cycle was completed. Notify the listeners in order to reflect changes in
-         * position of the Aircrafts.
+         * All aircraft were moved. Notify the listeners in order to reflect changes in position of
+         * the Aircraft on the view.
          */
-        void onUpdateCycle();
+        void onAircraftPositionChanged();
 
         /**
          * An aircraft has landed.
@@ -78,11 +73,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onLand(int id);
 
         /**
-         * An aircraft has left the game's map.
+         * An aircraft has left the game's area.
          *
-         * @param id    ID of the Aircraft that left the map.
+         * @param id    ID of the Aircraft that left the aerodrome.
          */
-        void onAircraftOutsideMap(int id);
+        void onAircraftOutsideAerodrome(int id);
 
         /**
          * A crash happened.
@@ -93,15 +88,15 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onCrash(int firstId, int secondId);
     }
 
-    public void setListener(Listener listener) {
-        mListener = listener;
+    public void setListener(EventsListener eventsListener) {
+        mEventsListener = eventsListener;
     }
 
-    private ArrayList<Aircraft> mAircrafts;
+    private ArrayList<Aircraft> mAircraftList;
     private ArrayList<LandingSite> mSites;
     private int mScore;
-    private Map mMap;
-    private Listener mListener;
+    private Aerodrome mAerodrome;
+    private EventsListener mEventsListener;
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
@@ -124,11 +119,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         // Creates the periodic Tasks.
         mExecutor = Executors.newScheduledThreadPool(1);
         // Containers for all the active aircrafts and landing sites.
-        mAircrafts = new ArrayList<>();
+        mAircraftList = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
-        mMap = new Map(0,100,100,0);
-        mGenerator = new AircraftGenerator(mMap);
+        mAerodrome = new Aerodrome(0,100,100,0);
+        mGenerator = new AircraftGenerator(mAerodrome);
         mGenerator.setOnAircraftGeneratedListener(this);
         mGenerator.begin();
         mScore = 0;
@@ -140,46 +135,46 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             @Override
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
-                synchronized (mAircrafts) {
-                    Iterator<Aircraft> iterator = mAircrafts.iterator();
+                synchronized (mAircraftList) {
+                    Iterator<Aircraft> iterator = mAircraftList.iterator();
                     while (iterator.hasNext()) {
                         Aircraft aircraft = iterator.next();
                         aircraft.moveForward();
 
+                        // Check for any crash.
+                        for (Aircraft otherAircraft : mAircraftList) {
+                            if (aircraft.crashesWith(otherAircraft)) {
+                                if (mEventsListener != null) {
+                                    mEventsListener.onCrash(aircraft.getId(), otherAircraft.getId());
+                                }
+                                gameOver();
+                                return;
+                            }
+                        }
+
                         // Check for any landing.
                         for (LandingSite site : mSites) {
                             if (aircraft.land(site)) {
-                                if (mListener != null) {
-                                    mListener.onLand(aircraft.getId());
+                                if (mEventsListener != null) {
+                                    mEventsListener.onLand(aircraft.getId());
                                 }
                                 mScore++;
                                 iterator.remove();
                             }
                         }
 
-                        // Delete aircrafts that are outside the map.
-                        if (mMap.isOutOfBounds(aircraft)) {
-                            if (mListener != null) {
-                                mListener.onAircraftOutsideMap(aircraft.getId());
+                        // Delete any aircraft that is outside the aerodrome.
+                        if (mAerodrome.isOutOfBounds(aircraft)) {
+                            if (mEventsListener != null) {
+                                mEventsListener.onAircraftOutsideAerodrome(aircraft.getId());
                             }
                             iterator.remove();
                         }
-
-                        // Check for any crash.
-                        for (Aircraft otherAircraft : mAircrafts) {
-                            if (aircraft.crashesWith(otherAircraft)) {
-                                if (mListener != null) {
-                                    mListener.onCrash(aircraft.getId(), otherAircraft.getId());
-                                }
-                                gameOver();
-                                return;
-                            }
-                        }
                     }
 
-                    // An update cycle was finished.
-                    if (mListener != null) {
-                        mListener.onUpdateCycle();
+                    // All aircraft were moved.
+                    if (mEventsListener != null) {
+                        mEventsListener.onAircraftPositionChanged();
                     }
                 }
             }
@@ -203,36 +198,39 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
-        // Notify the Listener about the event.
-        if (mListener != null) {
-            mListener.onGameOver();
+        // Notify the EventsListener about the event.
+        if (mEventsListener != null) {
+            mEventsListener.onGameOver();
         }
     }
 
     /**
-     * Return the list of currently existing Aircraft.
+     * Return a Map with the Aircraft ID and a clone of it's Position.
      */
-    public synchronized List<Aircraft> getAircraft() {
-        return mAircrafts;
+    public Map<Integer, Position> getAircraftPositionMap() {
+        Map<Integer, Position> positionMap = new HashMap<>();
+        // The Map is populated in a synchronized block.
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                positionMap.put(aircraft.getId(), aircraft.getPosition().clone());
+            }
+        }
+        return positionMap;
     }
 
     public List<LandingSite> getSites() {
         return mSites;
     }
 
-    public Map getMap() {
-        return mMap;
+    public Aerodrome getAerodrome() {
+        return mAerodrome;
     }
 
     @Override
     public void onAircraftGenerated(Aircraft generatedAircraft) {
         // Synchronize the Aircraft list to prevent access during the operation.
-        synchronized (mAircrafts) {
-            mAircrafts.add(generatedAircraft);
-        }
-        // Notify the Listener of the creation of a new Aircraft.
-        if (mListener != null) {
-            mListener.onAircraftGenerated(generatedAircraft);
+        synchronized (mAircraftList) {
+            mAircraftList.add(generatedAircraft);
         }
         // Make the Aircraft notify itself. It's subtypes will call the corresponding method.
         generatedAircraft.notifyCreation(this);
@@ -243,8 +241,8 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * subclass of Aircraft, after calling their notifyCreation method.
      */
     public void createdLargePlane(LargePlane largePlane) {
-        if (mListener != null) {
-            mListener.onLargePlaneGenerated(largePlane);
+        if (mEventsListener != null) {
+            mEventsListener.onLargePlaneGenerated(largePlane);
         }
     }
 
@@ -253,8 +251,8 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * subclass of Aircraft, after calling their notifyCreation method.
      */
     public void createdLightPlane(LightPlane lightPlane) {
-        if (mListener != null) {
-            mListener.onLightPlaneGenerated(lightPlane);
+        if (mEventsListener != null) {
+            mEventsListener.onLightPlaneGenerated(lightPlane);
         }
     }
 
@@ -263,8 +261,8 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * subclass of Aircraft, after calling their notifyCreation method.
      */
     public void createdHelicopter(Helicopter helicopter) {
-        if (mListener != null) {
-            mListener.onHelicopterGenerated(helicopter);
+        if (mEventsListener != null) {
+            mEventsListener.onHelicopterGenerated(helicopter);
         }
     }
 }
