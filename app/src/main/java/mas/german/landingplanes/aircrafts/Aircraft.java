@@ -10,12 +10,12 @@ import mas.german.landingplanes.Position;
  */
 public abstract class Aircraft {
     private static final String TAG = Aircraft.class.getSimpleName();
-    // Counter of the number of Aircrafts instances. Used for assigning the IDs.
-    private static int sAircraftsCreated = 0;
+    // Counter of the number of Aircraft instances. Used for assigning the IDs.
+    private static int sAircraftCreated = 0;
 
     // ID of the current Aircraft. Used Integer for simplicity.
     private int mId;
-    // Length of the speed vector, in Map Units per millisecond.
+    // Length of the speed vector, in Aerodrome Units per millisecond.
     private double mSpeed;
     // Direction is the angle of the speed vector in radians.
     private double mDirection;
@@ -25,8 +25,8 @@ public abstract class Aircraft {
     private Position mPosition;
 
     Aircraft(double speed, double direction, Position position, int radius) {
-        sAircraftsCreated++;
-        mId = sAircraftsCreated;
+        sAircraftCreated++;
+        mId = sAircraftCreated;
         mSpeed = speed;
         mDirection = direction;
         mPosition = position;
@@ -58,6 +58,21 @@ public abstract class Aircraft {
         Position deltaPosition = new Position(mSpeed * sampleTime * Math.cos(mDirection),
             mSpeed * sampleTime * Math.sin(mDirection));
         mPosition.add(deltaPosition);
+    }
+
+    /**
+     * Modifies the direction towards a position.
+     *
+     * @param position  The position to point the Aircraft to.
+     */
+    public void changeDirection(Position position) {
+        double u = position.getX() - mPosition.getX();
+        double v = position.getY() - mPosition.getY();
+        mDirection = Math.atan2(v, u);
+        // Aircrafts are generated using angles between 0 and 2*PI radians.
+        if (mDirection < 0) {
+            mDirection += 2 * Math.PI;
+        }
     }
 
     /**

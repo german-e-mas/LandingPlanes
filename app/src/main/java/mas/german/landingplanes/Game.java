@@ -271,6 +271,23 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         return mAerodrome;
     }
 
+    /**
+     * Change the direction of a certain Aircraft towards the given point.
+     *
+     * @param id        ID of the Aircraft to modify.
+     * @param position  Position the Aircraft needs to face.
+     */
+    public void changeAircraftDirection(int id, Position position) {
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                if (aircraft.getId() == id) {
+                    aircraft.changeDirection(position);
+                    break;
+                }
+            }
+        }
+    }
+
     @Override
     public void onAircraftGenerated(Aircraft generatedAircraft) {
         // Synchronize the Aircraft list to prevent access during the operation.
