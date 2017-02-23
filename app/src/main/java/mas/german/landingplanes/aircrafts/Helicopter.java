@@ -14,7 +14,7 @@ public class Helicopter extends Aircraft {
     // Speed is in Map Units per millisecond.
     public static final double MAX_SPEED = 0.035;
     public static final double MIN_SPEED = 0.025;
-    private static final int RADIUS = 2;
+    private static final int RADIUS = 3;
 
     public Helicopter(double speed, double direction, Position pos) {
         super(speed, direction, pos, RADIUS);
