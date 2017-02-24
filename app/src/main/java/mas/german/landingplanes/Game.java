@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
     private static final int UPDATE_MS = 30;
+    // Modifier of the Aircraft radius, in order to give a larger margin of selection.
+    private static final float SIZE_MULTIPLIER = 1.25f;
 
     private static Game sInstance = null;
 
@@ -84,6 +86,19 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
          * the Aircraft on the view.
          */
         void onAircraftPositionChanged();
+
+        /**
+         * An aircraft has been selected while the rest were deselected. Only one can be selected
+         * at a time.
+         *
+         * @param id    ID of the selected Aircraft.
+         */
+        void onAircraftSelect(int id);
+
+        /**
+         * A specific aircraft has been deselected.
+         */
+        void onAircraftDeselect(int id);
 
         /**
          * An aircraft has landed.
@@ -272,16 +287,59 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     }
 
     /**
-     * Change the direction of a certain Aircraft towards the given point.
+     * Auxiliary method to select a single aircraft while deselecting the rest.
      *
-     * @param id        ID of the Aircraft to modify.
-     * @param position  Position the Aircraft needs to face.
+     * @param id    ID of the Aircraft to select.
      */
-    public void changeAircraftDirection(int id, Position position) {
+    private void selectAircraft(int id) {
         synchronized (mAircraftList) {
             for (Aircraft aircraft : mAircraftList) {
                 if (aircraft.getId() == id) {
+                    aircraft.select();
+                } else {
+                    aircraft.deselect();
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if an Aircraft is near the given position and select it.
+     *
+     * @param position  Position to check for aircraft.
+     */
+    public boolean selectAircraftAtPosition(Position position) {
+        synchronized (mAircraftList) {
+            // Check if there is an Aircraft at the given position. If there is, we must select
+            // it and deselect the rest.
+            for (Aircraft aircraft : mAircraftList) {
+                if (aircraft.getPosition().distanceTo(position) <=
+                    aircraft.getRadius() * SIZE_MULTIPLIER) {
+                    // An aircraft is within reach. Select it.
+                    selectAircraft(aircraft.getId());
+                    if (mEventsListener != null) {
+                        mEventsListener.onAircraftSelect(aircraft.getId());
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Change the direction of the selected aircraft towards the given point.
+     *
+     * @param position  Position the Aircraft needs to face.
+     */
+    public void orientateSelectedAircraft(Position position) {
+        // Synchronize the list, so we know we modify the correct Aircraft.
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                if (aircraft.isSelected()) {
                     aircraft.changeDirection(position);
+                    aircraft.deselect();
+                    mEventsListener.onAircraftDeselect(aircraft.getId());
                     break;
                 }
             }

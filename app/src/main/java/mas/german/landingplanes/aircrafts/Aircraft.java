@@ -23,6 +23,8 @@ public abstract class Aircraft {
     private int mRadius;
     // Position in the Aerodrome.
     private Position mPosition;
+    // Selection behaviour.
+    private boolean mSelected;
 
     Aircraft(double speed, double direction, Position position, int radius) {
         sAircraftCreated++;
@@ -31,6 +33,7 @@ public abstract class Aircraft {
         mDirection = direction;
         mPosition = position;
         mRadius = radius;
+        mSelected = false;
     }
 
     public int getId() {
@@ -47,6 +50,18 @@ public abstract class Aircraft {
 
     public double getDirection() {
         return mDirection;
+    }
+
+    public void select() {
+        mSelected = true;
+    }
+
+    public void deselect() {
+        mSelected = false;
+    }
+
+    public boolean isSelected() {
+        return mSelected;
     }
 
     /**

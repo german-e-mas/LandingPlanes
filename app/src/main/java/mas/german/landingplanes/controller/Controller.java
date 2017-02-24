@@ -10,24 +10,16 @@ import mas.german.landingplanes.view.AerodromeView;
  */
 public class Controller implements AerodromeView.OnViewEventListener {
   private static final String TAG = Controller.class.getSimpleName();
-  private static final int NONE_SELECTED = -1;
 
   // Game instance that contains the Model data.
   private Game mGame = Game.getInstance();
 
-  private int mSelectedId = NONE_SELECTED;
-
-
   @Override
   public void onAerodromeTapped(Position position) {
-    if (mSelectedId != NONE_SELECTED) {
-      mGame.changeAircraftDirection(mSelectedId, position);
+    // A position has been tapped. Tell the game to select an aircraft in it's position. If there's
+    // none there, try to move a selected aircraft towards that position.
+    if (!mGame.selectAircraftAtPosition(position)) {
+      mGame.orientateSelectedAircraft(position);
     }
-    mSelectedId = NONE_SELECTED;
-  }
-
-  @Override
-  public void onAircraftSelected(int id) {
-    mSelectedId = id;
   }
 }

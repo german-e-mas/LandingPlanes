@@ -34,18 +34,11 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
    */
   public interface OnViewEventListener {
     /**
-     * Notify the listeners that an aircraft needs to face the given position.
+     * Notify the listeners that a position in the aerodrome was tapped.
      *
-     * @param position  The position that Aircraft needs to point to.
+     * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
      */
     void onAerodromeTapped(Position position);
-
-    /**
-     * An aircraft was selected.
-     *
-     * @param id  ID of the selected Aircraft.
-     */
-    void onAircraftSelected(int id);
   }
 
   public void setListener(OnViewEventListener listener) {
@@ -176,6 +169,30 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   }
 
   @Override
+  public void onAircraftSelect(int id) {
+    synchronized (mDrawables.values()) {
+      // Select the aircraft with the matched ID, while deselecting the rest.
+      for (AircraftDrawable aircraftDrawable : mDrawables.values()) {
+        if (aircraftDrawable.getId() == id) {
+          aircraftDrawable.select();
+        } else {
+          aircraftDrawable.deselect();
+        }
+      }
+    }
+    postInvalidate();
+  }
+
+  @Override
+  public void onAircraftDeselect(int id) {
+    synchronized (mDrawables.values()) {
+      // Deselect all aircraft.
+      mDrawables.get(id).deselect();
+    }
+    postInvalidate();
+  }
+
+  @Override
   public void onGameOver() {
     // Game Over visual effect.
     mBackgroundPaint.setColor(getResources().getColor(R.color.landingSite));
@@ -240,26 +257,10 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   public boolean onTouchEvent(MotionEvent event) {
     switch (event.getActionMasked()) {
       case MotionEvent.ACTION_DOWN:
-        // A tap in the screen can do two things: Select an Aircraft or move an already selected one
-        // towards the given coordinates.
         if (mListener != null) {
           // Map the coordinates into the Aerodrome.
           Position aerodromePosition = getAerodromePosition(event.getX(), event.getY());
-          // As we are going to be reading from the Drawables' list, we need to synchronize it.
-          synchronized (mDrawables.values()) {
-            // Check if there is an Aircraft at the touch position.
-            for (AircraftDrawable drawable : mDrawables.values()) {
-              if (drawable.getPosition().distanceTo(aerodromePosition) <=
-                  drawable.getRadius() * SELECT_MODIFIER) {
-                drawable.select();
-                mListener.onAircraftSelected(drawable.getId());
-                return true;
-              }
-              drawable.deselect();
-            }
-            // At this point, no Aircraft was at the touch position. Notify that position.
-            mListener.onAerodromeTapped(aerodromePosition);
-          }
+          mListener.onAerodromeTapped(aerodromePosition);
         }
         return true;
     }

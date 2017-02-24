@@ -30,7 +30,7 @@ public abstract class AircraftDrawable extends Drawable {
   private Paint mPaint;
 
   // Drawable Selection Flag.
-  private boolean mIsSelected = false;
+  private boolean mSelected = false;
 
   protected void setId(int id) {
     mId = id;
@@ -64,18 +64,18 @@ public abstract class AircraftDrawable extends Drawable {
   }
 
   protected void select() {
-    mIsSelected = true;
+    mSelected = true;
   }
 
   protected void deselect() {
-    mIsSelected = false;
+    mSelected = false;
   }
 
   @Override
   public void draw(Canvas canvas) {
     canvas.save();
     // A bigger, transparent circle is drawn to provide selection feedback.
-    if (mIsSelected) {
+    if (mSelected) {
       mPaint.setAlpha(ALPHA_SELECTED);
       canvas.drawCircle(mX, mY, mRadius * SIZE_MODIFIER, mPaint);
     }
