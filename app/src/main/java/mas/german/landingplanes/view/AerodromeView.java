@@ -26,8 +26,6 @@ import mas.german.landingplanes.landingsites.ShortRunway;
  */
 public class AerodromeView extends ImageView implements Game.EventsListener {
   private static final String TAG = AerodromeView.class.getSimpleName();
-  // Multiplier for the selection distance.
-  private static final float SELECT_MODIFIER = 1.5f;
 
   /**
    * View-related events that let the attached controllers modify the model.
