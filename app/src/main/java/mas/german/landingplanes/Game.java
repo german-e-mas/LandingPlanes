@@ -307,11 +307,10 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * Check if an Aircraft is near the given position and select it.
      *
      * @param position  Position to check for aircraft.
+     * @return  Whether an Aircraft was selected or not.
      */
     public boolean selectAircraftAtPosition(Position position) {
         synchronized (mAircraftList) {
-            // Check if there is an Aircraft at the given position. If there is, we must select
-            // it and deselect the rest.
             for (Aircraft aircraft : mAircraftList) {
                 if (aircraft.getPosition().distanceTo(position) <=
                     aircraft.getRadius() * SIZE_MULTIPLIER) {
