@@ -20,7 +20,7 @@ public class AircraftGenerator implements Runnable {
 
     private ScheduledExecutorService mExecutor;
 
-    private Map mMap;
+    private Aerodrome mAerodrome;
     private Random mRandom;
     private int mTime;
 
@@ -41,9 +41,9 @@ public class AircraftGenerator implements Runnable {
         mOnAircraftGeneratedListener = listener;
     }
 
-    AircraftGenerator(Map currentMap) {
+    AircraftGenerator(Aerodrome currentAerodrome) {
         mRandom = new Random(System.currentTimeMillis());
-        mMap = currentMap;
+        mAerodrome = currentAerodrome;
         // Start a new executor thread.
         mExecutor = Executors.newScheduledThreadPool(1);
     }
@@ -73,36 +73,36 @@ public class AircraftGenerator implements Runnable {
      */
     private Aircraft generateRandomAircraft() {
         // First calculate the position, as the range of directions also depends on it.
-        // The aircraft starts from a side of the Map, and it's direction is set accordingly.
+        // The aircraft starts from a side of the Aerodrome, and it's direction is set accordingly.
         double x = 0;
         double y = 0;
         double angle = 0;
         switch (mRandom.nextInt(4)) {
             case 0:
                 // Starts somewhere in the bottom edge
-                x = mRandom.nextDouble()*mMap.getBoundaryRight();
-                y = mMap.getBoundaryBottom();
+                x = mRandom.nextDouble() * mAerodrome.getBoundaryRight();
+                y = mAerodrome.getBoundaryBottom();
                 // 0° < angle < 180°
                 angle = mRandom.nextInt(180);
                 break;
             case 1:
                 // Starts somewhere in the right edge
-                x = mMap.getBoundaryRight();
-                y = mRandom.nextDouble()*mMap.getBoundaryTop();
+                x = mAerodrome.getBoundaryRight();
+                y = mRandom.nextDouble() * mAerodrome.getBoundaryTop();
                 // 90° < angle < 270°
                 angle = 90 + mRandom.nextInt(180);
                 break;
             case 2:
                 // Starts somewhere in the top edge.
-                x = mRandom.nextDouble()*mMap.getBoundaryRight();
-                y = mMap.getBoundaryTop();
+                x = mRandom.nextDouble() * mAerodrome.getBoundaryRight();
+                y = mAerodrome.getBoundaryTop();
                 // 180° < angle < 360°
                 angle = 180 + mRandom.nextInt(180);
                 break;
             case 3:
                 // Starts somewhere in the left edge.
-                x = mMap.getBoundaryLeft();
-                y = mRandom.nextDouble()*mMap.getBoundaryTop();
+                x = mAerodrome.getBoundaryLeft();
+                y = mRandom.nextDouble() * mAerodrome.getBoundaryTop();
                 // -90° < angle < 90°
                 angle = 90 - mRandom.nextInt(180);
                 // Keep the angle in positive values.

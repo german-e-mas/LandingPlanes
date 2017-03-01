@@ -1,5 +1,6 @@
 package mas.german.landingplanes.aircrafts;
 
+import mas.german.landingplanes.Game;
 import mas.german.landingplanes.landingsites.LandingSite;
 import mas.german.landingplanes.Position;
 
@@ -9,10 +10,10 @@ import mas.german.landingplanes.Position;
  */
 public abstract class Aircraft {
     private static final String TAG = Aircraft.class.getSimpleName();
-    // Counter of the number of Aircrafts instances.
+    // Counter of the number of Aircrafts instances. Used for assigning the IDs.
     private static int sAircraftsCreated = 0;
 
-    // ID of the current Aircraft..
+    // ID of the current Aircraft. Used Integer for simplicity.
     private int mId;
     // Length of the speed vector.
     private double mSpeed;
@@ -20,7 +21,7 @@ public abstract class Aircraft {
     private double mDirection;
     // Radius of the Aircraft.
     private int mRadius;
-    // Position in the Map.
+    // Position in the Aerodrome.
     private Position mPosition;
 
     Aircraft(double speed, double direction, Position position, int radius) {
@@ -32,12 +33,20 @@ public abstract class Aircraft {
         mRadius = radius;
     }
 
+    public int getId() {
+        return mId;
+    }
+
     public int getRadius() {
         return mRadius;
     }
 
     public Position getPosition() {
         return mPosition;
+    }
+
+    public double getDirection() {
+        return mDirection;
     }
 
     /**
@@ -62,6 +71,8 @@ public abstract class Aircraft {
     }
 
     public abstract boolean land(LandingSite site);
+
+    public abstract void notifyCreation(Game game);
 
     public boolean equals(Aircraft aircraft) {
         if (mId == aircraft.mId) {

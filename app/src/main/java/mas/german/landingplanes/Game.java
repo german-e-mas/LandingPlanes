@@ -1,5 +1,7 @@
 package mas.german.landingplanes;
 
+import java.util.Map;
+import java.util.HashMap;
 import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
 
@@ -16,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  *
  * This class does the following tasks:
  * - Generates Landing Sites and store them on a array.
- * - Detects collisions of aircrafts, and finishes the game if they happen.
+ * - Detects collisions of aircraft, and finishes the game if they happen.
  * - Detects landings and increases the score.
  * - Checks if an aircraft has an invalid position and takes it off the array.
  */
@@ -26,10 +28,95 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     private static Game sInstance = null;
 
-    private ArrayList<Aircraft> mAircrafts;
+    /**
+     * Various game-related events that a listener may want to react upon.
+     */
+    public interface EventsListener {
+        /**
+         * Let the listener know the game is finished.
+         */
+        void onGameOver();
+
+        /**
+         * A new Long Runway was created.
+         *
+         * @param longRunway  The long runway created.
+         */
+        void onLongRunwayCreated(LongRunway longRunway);
+
+        /**
+         * A new Short Runway was created.
+         *
+         * @param shortRunway  The short runway created.
+         */
+        void onShortRunwayCreated(ShortRunway shortRunway);
+
+        /**
+         * A new Helipad was created.
+         *
+         * @param helipad   The helipad created.
+         */
+        void onHelipadCreated(Helipad helipad);
+
+        /**
+         * A new Large Plane was created.
+         *
+         * @param largePlane  The large plane that was generated.
+         */
+        void onLargePlaneGenerated(LargePlane largePlane);
+
+        /**
+         * A new Light Plane was created.
+         *
+         * @param lightPlane  The large plane that was generated.
+         */
+        void onLightPlaneGenerated(LightPlane lightPlane);
+
+        /**
+         * A new Helicopter was created.
+         *
+         * @param helicopter  The large plane that was generated.
+         */
+        void onHelicopterGenerated(Helicopter helicopter);
+
+        /**
+         * All aircraft were moved. Notify the listeners in order to reflect changes in position of
+         * the Aircraft on the view.
+         */
+        void onAircraftPositionChanged();
+
+        /**
+         * An aircraft has landed.
+         *
+         * @param id    ID of the Aircraft that landed.
+         */
+        void onLand(int id);
+
+        /**
+         * An aircraft has left the game's area.
+         *
+         * @param id    ID of the Aircraft that left the aerodrome.
+         */
+        void onAircraftOutsideAerodrome(int id);
+
+        /**
+         * A crash happened.
+         *
+         * @param firstId   ID of the first Aircraft involved in the crash.
+         * @param secondId  ID of the second Aircraft involved in the crash.
+         */
+        void onCrash(int firstId, int secondId);
+    }
+
+    public void setListener(EventsListener eventsListener) {
+        mEventsListener = eventsListener;
+    }
+
+    private ArrayList<Aircraft> mAircraftList;
     private ArrayList<LandingSite> mSites;
     private int mScore;
-    private Map mMap;
+    private Aerodrome mAerodrome;
+    private EventsListener mEventsListener;
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
@@ -49,18 +136,23 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     }
 
     private Game() {
-        // Creates the periodic Tasks.
+        // Creates the executor Thread Pool.
         mExecutor = Executors.newScheduledThreadPool(1);
-        // Containers for all the active aircrafts and landing sites.
-        mAircrafts = new ArrayList<>();
+        // Containers for all the active aircraft and landing sites.
+        mAircraftList = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
-        mMap = new Map(0,100,100,0);
-        mGenerator = new AircraftGenerator(mMap);
+        mAerodrome = new Aerodrome(0,100,100,0);
+        mGenerator = new AircraftGenerator(mAerodrome);
         mGenerator.setOnAircraftGeneratedListener(this);
+    }
+
+    /**
+     * Start the Game. This resets the score and starts the periodic tasks.
+     */
+    public void initialize() {
         mGenerator.begin();
         mScore = 0;
-
         setStartingSites();
 
         // Periodic task to update the game status.
@@ -68,33 +160,46 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             @Override
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
-                synchronized (mAircrafts) {
-                    Iterator<Aircraft> iterator = mAircrafts.iterator();
+                synchronized (mAircraftList) {
+                    Iterator<Aircraft> iterator = mAircraftList.iterator();
                     while (iterator.hasNext()) {
                         Aircraft aircraft = iterator.next();
-
-                        // Move the aircraft.
                         aircraft.moveForward();
 
                         // Check for any crash.
-                        for (Aircraft otherAircraft : mAircrafts) {
+                        for (Aircraft otherAircraft : mAircraftList) {
                             if (aircraft.crashesWith(otherAircraft)) {
+                                if (mEventsListener != null) {
+                                    mEventsListener.onCrash(aircraft.getId(), otherAircraft.getId());
+                                }
                                 gameOver();
+                                return;
                             }
                         }
 
                         // Check for any landing.
                         for (LandingSite site : mSites) {
                             if (aircraft.land(site)) {
+                                if (mEventsListener != null) {
+                                    mEventsListener.onLand(aircraft.getId());
+                                }
                                 mScore++;
                                 iterator.remove();
                             }
                         }
 
-                        // Delete aircrafts that are outside the map.
-                        if (mMap.isOutOfBounds(aircraft)) {
+                        // Delete any aircraft that is outside the aerodrome.
+                        if (mAerodrome.isOutOfBounds(aircraft)) {
+                            if (mEventsListener != null) {
+                                mEventsListener.onAircraftOutsideAerodrome(aircraft.getId());
+                            }
                             iterator.remove();
                         }
+                    }
+
+                    // All aircraft were moved.
+                    if (mEventsListener != null) {
+                        mEventsListener.onAircraftPositionChanged();
                     }
                 }
             }
@@ -105,9 +210,23 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * Creates the initial Landing Sites. They are currently hardcoded in the given positions.
      */
     private void setStartingSites() {
-        mSites.add(new LongRunway(new Position(50, 75)));
-        mSites.add(new ShortRunway(new Position(75, 25)));
-        mSites.add(new Helipad(new Position(25, 25)));
+        LongRunway longRunway = new LongRunway(new Position(50, 75), 0, Math.toRadians(90));
+        mSites.add(longRunway);
+        if (mEventsListener != null) {
+            mEventsListener.onLongRunwayCreated(longRunway);
+        }
+
+        ShortRunway shortRunway = new ShortRunway(new Position(75, 25), Math.toRadians(90), Math.toRadians(90));
+        mSites.add(shortRunway);
+        if (mEventsListener != null) {
+            mEventsListener.onShortRunwayCreated(shortRunway);
+        }
+
+        Helipad helipad = new Helipad(new Position(25, 25));
+        mSites.add(helipad);
+        if (mEventsListener != null) {
+            mEventsListener.onHelipadCreated(helipad);
+        }
     }
 
     /**
@@ -118,13 +237,67 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
+        // Notify the EventsListener about the event.
+        if (mEventsListener != null) {
+            mEventsListener.onGameOver();
+        }
+    }
+
+    /**
+     * Return a Map with the Aircraft ID and a clone of it's Position.
+     */
+    public Map<Integer, Position> getAircraftPositionMap() {
+        Map<Integer, Position> positionMap = new HashMap<>();
+        // The Map is populated in a synchronized block.
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                positionMap.put(aircraft.getId(), aircraft.getPosition().clone());
+            }
+        }
+        return positionMap;
+    }
+
+    public Aerodrome getAerodrome() {
+        return mAerodrome;
     }
 
     @Override
     public void onAircraftGenerated(Aircraft generatedAircraft) {
         // Synchronize the Aircraft list to prevent access during the operation.
-        synchronized (mAircrafts) {
-            mAircrafts.add(generatedAircraft);
+        synchronized (mAircraftList) {
+            mAircraftList.add(generatedAircraft);
+        }
+        // Make the Aircraft notify itself. It's subtypes will call the corresponding method.
+        generatedAircraft.notifyCreation(this);
+    }
+
+    /**
+     * Notify the listener that a Large Plane was created. This is called from the corresponding
+     * subclass of Aircraft, after calling their notifyCreation method.
+     */
+    public void createdLargePlane(LargePlane largePlane) {
+        if (mEventsListener != null) {
+            mEventsListener.onLargePlaneGenerated(largePlane);
+        }
+    }
+
+    /**
+     * Notify the listener that a Light Plane was created. This is called from the corresponding
+     * subclass of Aircraft, after calling their notifyCreation method.
+     */
+    public void createdLightPlane(LightPlane lightPlane) {
+        if (mEventsListener != null) {
+            mEventsListener.onLightPlaneGenerated(lightPlane);
+        }
+    }
+
+    /**
+     * Notify the listener that a Helicopter was created. This is called from the corresponding
+     * subclass of Aircraft, after calling their notifyCreation method.
+     */
+    public void createdHelicopter(Helicopter helicopter) {
+        if (mEventsListener != null) {
+            mEventsListener.onHelicopterGenerated(helicopter);
         }
     }
 }
