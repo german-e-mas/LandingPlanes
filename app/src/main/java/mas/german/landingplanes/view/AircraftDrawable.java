@@ -63,12 +63,8 @@ public abstract class AircraftDrawable extends Drawable {
     mPaint.setColor(color);
   }
 
-  protected void select() {
-    mSelected = true;
-  }
-
-  protected void deselect() {
-    mSelected = false;
+  protected void select(boolean state) {
+    mSelected = state;
   }
 
   @Override

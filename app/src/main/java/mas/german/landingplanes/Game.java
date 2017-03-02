@@ -26,7 +26,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
     private static final int UPDATE_MS = 30;
     // Modifier of the Aircraft radius, in order to give a larger margin of selection.
-    private static final float SIZE_MULTIPLIER = 1.25f;
+    private static final float DISTANCE_TOLERANCE = 1.25f;
 
     private static Game sInstance = null;
 
@@ -88,17 +88,13 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onAircraftPositionChanged();
 
         /**
-         * An aircraft has been selected while the rest were deselected. Only one can be selected
+         * An aircraft has been selected or deselected. Keep in mind that only one can be selected
          * at a time.
          *
          * @param id    ID of the selected Aircraft.
+         * @param state Whether the aircraft is selected or not.
          */
-        void onAircraftSelect(int id);
-
-        /**
-         * A specific aircraft has been deselected.
-         */
-        void onAircraftDeselect(int id);
+        void onAircraftSelect(int id, boolean state);
 
         /**
          * An aircraft has landed.
@@ -295,9 +291,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         synchronized (mAircraftList) {
             for (Aircraft aircraft : mAircraftList) {
                 if (aircraft.getId() == id) {
-                    aircraft.select();
+                    aircraft.select(true);
                 } else {
-                    aircraft.deselect();
+                    aircraft.select(false);
                 }
             }
         }
@@ -313,11 +309,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         synchronized (mAircraftList) {
             for (Aircraft aircraft : mAircraftList) {
                 if (aircraft.getPosition().distanceTo(position) <=
-                    aircraft.getRadius() * SIZE_MULTIPLIER) {
+                    aircraft.getRadius() * DISTANCE_TOLERANCE) {
                     // An aircraft is within reach. Select it.
                     selectAircraft(aircraft.getId());
                     if (mEventsListener != null) {
-                        mEventsListener.onAircraftSelect(aircraft.getId());
+                        mEventsListener.onAircraftSelect(aircraft.getId(), true);
                     }
                     return true;
                 }
@@ -337,8 +333,8 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             for (Aircraft aircraft : mAircraftList) {
                 if (aircraft.isSelected()) {
                     aircraft.changeDirection(position);
-                    aircraft.deselect();
-                    mEventsListener.onAircraftDeselect(aircraft.getId());
+                    aircraft.select(false);
+                    mEventsListener.onAircraftSelect(aircraft.getId(), false);
                     break;
                 }
             }

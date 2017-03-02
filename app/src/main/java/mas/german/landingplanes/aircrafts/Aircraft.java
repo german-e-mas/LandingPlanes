@@ -52,12 +52,8 @@ public abstract class Aircraft {
         return mDirection;
     }
 
-    public void select() {
-        mSelected = true;
-    }
-
-    public void deselect() {
-        mSelected = false;
+    public void select(boolean state) {
+        mSelected = state;
     }
 
     public boolean isSelected() {

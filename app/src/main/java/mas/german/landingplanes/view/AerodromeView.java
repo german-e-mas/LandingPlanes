@@ -32,22 +32,22 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
    */
   public interface OnViewEventListener {
     /**
-     * Notify the listeners that a position in the aerodrome was tapped.
+     * Notify the listeners (controllers) that a position in the aerodrome was tapped.
      *
      * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
      */
     void onAerodromeTapped(Position position);
   }
 
-  public void setListener(OnViewEventListener listener) {
-    mListener = listener;
+  public void setController(OnViewEventListener controller) {
+    mController = controller;
   }
 
   // Each plane need Context in order to access the resources and get their colours.
   private Context mContext;
 
   // The Listener that will be receiving notifications from this class.
-  private OnViewEventListener mListener;
+  private OnViewEventListener mController;
 
   // Paints used in the view.
   private Paint mBackgroundPaint = new Paint();
@@ -167,25 +167,17 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   }
 
   @Override
-  public void onAircraftSelect(int id) {
+  public void onAircraftSelect(int id, boolean state) {
     synchronized (mDrawables.values()) {
-      // Select the aircraft with the matched ID, while deselecting the rest.
+      // Select or deselect the aircraft with the matched ID. The rest is deselected. Only one can
+      // be selected at a time.
       for (AircraftDrawable aircraftDrawable : mDrawables.values()) {
         if (aircraftDrawable.getId() == id) {
-          aircraftDrawable.select();
+          aircraftDrawable.select(state);
         } else {
-          aircraftDrawable.deselect();
+          aircraftDrawable.select(false);
         }
       }
-    }
-    postInvalidate();
-  }
-
-  @Override
-  public void onAircraftDeselect(int id) {
-    synchronized (mDrawables.values()) {
-      // Deselect all aircraft.
-      mDrawables.get(id).deselect();
     }
     postInvalidate();
   }
@@ -255,10 +247,10 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   public boolean onTouchEvent(MotionEvent event) {
     switch (event.getActionMasked()) {
       case MotionEvent.ACTION_DOWN:
-        if (mListener != null) {
+        if (mController != null) {
           // Map the coordinates into the Aerodrome.
           Position aerodromePosition = getAerodromePosition(event.getX(), event.getY());
-          mListener.onAerodromeTapped(aerodromePosition);
+          mController.onAerodromeTapped(aerodromePosition);
         }
         return true;
     }

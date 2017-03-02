@@ -9,14 +9,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private AerodromeView mView;
     private Game mGame = Game.getInstance();
-    private Controller mCtrl = new Controller();
+    private Controller mController = new Controller();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mView = (AerodromeView) findViewById(R.id.view_aerodrome);
-        mView.setListener(mCtrl);
+        mView.setController(mController);
 
         mGame.initialize();
     }
