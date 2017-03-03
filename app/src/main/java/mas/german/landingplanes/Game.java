@@ -26,7 +26,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
     private static final int UPDATE_MS = 30;
     // Modifier of the Aircraft radius, in order to give a larger margin of selection.
-    private static final float DISTANCE_TOLERANCE = 1.25f;
+    private static final float DISTANCE_TOLERANCE = 2f;
 
     private static Game sInstance = null;
 
@@ -309,7 +309,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         synchronized (mAircraftList) {
             for (Aircraft aircraft : mAircraftList) {
                 if (aircraft.getPosition().distanceTo(position) <=
-                    aircraft.getRadius() * DISTANCE_TOLERANCE) {
+                    aircraft.getRadius() + DISTANCE_TOLERANCE) {
                     // An aircraft is within reach. Select it.
                     selectAircraft(aircraft.getId());
                     if (mEventsListener != null) {
