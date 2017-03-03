@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class Game implements AircraftGenerator.OnAircraftGenerated {
     private static final String TAG = Game.class.getSimpleName();
-    private static final int UPDATE_MS = 200;
+    private static final int UPDATE_MS = 30;
+    // Modifier of the Aircraft radius, in order to give a larger margin of selection.
+    private static final float DISTANCE_TOLERANCE = 2f;
 
     private static Game sInstance = null;
 
@@ -86,6 +88,15 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         void onAircraftPositionChanged();
 
         /**
+         * An aircraft has been selected or deselected. Keep in mind that only one can be selected
+         * at a time.
+         *
+         * @param id    ID of the selected Aircraft.
+         * @param state Whether the aircraft is selected or not.
+         */
+        void onAircraftSelect(int id, boolean state);
+
+        /**
          * An aircraft has landed.
          *
          * @param id    ID of the Aircraft that landed.
@@ -114,12 +125,14 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     private ArrayList<Aircraft> mAircraftList;
     private ArrayList<LandingSite> mSites;
+
     private int mScore;
     private Aerodrome mAerodrome;
     private EventsListener mEventsListener;
 
     private ScheduledExecutorService mExecutor;
     private ScheduledFuture<?> mUpdateTask;
+    private long mPreviousTimestamp = 0;
 
     private AircraftGenerator mGenerator;
 
@@ -161,10 +174,17 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
             public void run() {
                 // Aircraft iterator for safely handle the removal of aircrafts from the list.
                 synchronized (mAircraftList) {
+                    // Calculate the time between calls, in order to move all aircraft accordingly.
+                    long timestamp = System.currentTimeMillis();
+                    long elapsedTime = timestamp - mPreviousTimestamp;
+                    mPreviousTimestamp = timestamp;
+
                     Iterator<Aircraft> iterator = mAircraftList.iterator();
                     while (iterator.hasNext()) {
                         Aircraft aircraft = iterator.next();
-                        aircraft.moveForward();
+                        // The task runs at UPDATE_MS but it is not perfect. We use the previously
+                        // calculated elapsed time between iterations.
+                        aircraft.moveForward(elapsedTime);
 
                         // Check for any crash.
                         for (Aircraft otherAircraft : mAircraftList) {
@@ -193,6 +213,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                             if (mEventsListener != null) {
                                 mEventsListener.onAircraftOutsideAerodrome(aircraft.getId());
                             }
+
                             iterator.remove();
                         }
                     }
@@ -259,6 +280,65 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     public Aerodrome getAerodrome() {
         return mAerodrome;
+    }
+
+    /**
+     * Auxiliary method to select a single aircraft while deselecting the rest.
+     *
+     * @param id    ID of the Aircraft to select.
+     */
+    private void selectAircraft(int id) {
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                if (aircraft.getId() == id) {
+                    aircraft.select(true);
+                } else {
+                    aircraft.select(false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if an Aircraft is near the given position and select it.
+     *
+     * @param position  Position to check for aircraft.
+     * @return  Whether an Aircraft was selected or not.
+     */
+    public boolean selectAircraftAtPosition(Position position) {
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                if (aircraft.getPosition().distanceTo(position) <=
+                    aircraft.getRadius() + DISTANCE_TOLERANCE) {
+                    // An aircraft is within reach. Select it.
+                    selectAircraft(aircraft.getId());
+                    if (mEventsListener != null) {
+                        mEventsListener.onAircraftSelect(aircraft.getId(), true);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Change the direction of the selected aircraft towards the given point.
+     *
+     * @param position  Position the Aircraft needs to face.
+     */
+    public void orientateSelectedAircraft(Position position) {
+        // Synchronize the list, so we know we modify the correct Aircraft.
+        synchronized (mAircraftList) {
+            for (Aircraft aircraft : mAircraftList) {
+                if (aircraft.isSelected()) {
+                    aircraft.changeDirection(position);
+                    aircraft.select(false);
+                    mEventsListener.onAircraftSelect(aircraft.getId(), false);
+                    break;
+                }
+            }
+        }
     }
 
     @Override

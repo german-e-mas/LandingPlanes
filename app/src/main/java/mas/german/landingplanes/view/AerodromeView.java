@@ -5,12 +5,14 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import mas.german.landingplanes.Game;
+import mas.german.landingplanes.Position;
 import mas.german.landingplanes.R;
 import mas.german.landingplanes.aircrafts.Helicopter;
 import mas.german.landingplanes.aircrafts.LargePlane;
@@ -25,8 +27,27 @@ import mas.german.landingplanes.landingsites.ShortRunway;
 public class AerodromeView extends ImageView implements Game.EventsListener {
   private static final String TAG = AerodromeView.class.getSimpleName();
 
+  /**
+   * View-related events that let the attached controllers modify the model.
+   */
+  public interface OnViewEventListener {
+    /**
+     * Notify the listeners (controllers) that a position in the aerodrome was tapped.
+     *
+     * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
+     */
+    void onAerodromeTapped(Position position);
+  }
+
+  public void setController(OnViewEventListener controller) {
+    mController = controller;
+  }
+
   // Each plane need Context in order to access the resources and get their colours.
   private Context mContext;
+
+  // The Listener that will be receiving notifications from this class.
+  private OnViewEventListener mController;
 
   // Paints used in the view.
   private Paint mBackgroundPaint = new Paint();
@@ -63,6 +84,21 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     mSitePaint.setColor(getResources().getColor(R.color.landingSite));
     mContext = context;
     mGame.setListener(this);
+  }
+
+  /**
+   * Map an (x,y) point into Aerodrome coordinates.
+   *
+   * @param x The X-coordinate of the point to map.
+   * @param y The Y-coordinate of the point to map.
+   * @return  The mapped Position in Aerodrome coordinates.
+   */
+  private Position getAerodromePosition(float x, float y) {
+    float xy[] = {x, y};
+    Matrix inverse = new Matrix();
+    mAerodrome.invert(inverse);
+    inverse.mapPoints(xy);
+    return new Position(xy[0], xy[1]);
   }
 
   /**
@@ -131,6 +167,22 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   }
 
   @Override
+  public void onAircraftSelect(int id, boolean state) {
+    synchronized (mDrawables.values()) {
+      // Select or deselect the aircraft with the matched ID. The rest is deselected. Only one can
+      // be selected at a time.
+      for (AircraftDrawable aircraftDrawable : mDrawables.values()) {
+        if (aircraftDrawable.getId() == id) {
+          aircraftDrawable.select(state);
+        } else {
+          aircraftDrawable.select(false);
+        }
+      }
+    }
+    postInvalidate();
+  }
+
+  @Override
   public void onGameOver() {
     // Game Over visual effect.
     mBackgroundPaint.setColor(getResources().getColor(R.color.landingSite));
@@ -189,5 +241,19 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   @Override
   public void onCrash(int firstId, int secondId) {
     // Crash happened between the aircrafts of the given IDs.
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    switch (event.getActionMasked()) {
+      case MotionEvent.ACTION_DOWN:
+        if (mController != null) {
+          // Map the coordinates into the Aerodrome.
+          Position aerodromePosition = getAerodromePosition(event.getX(), event.getY());
+          mController.onAerodromeTapped(aerodromePosition);
+        }
+        return true;
+    }
+    return super.onTouchEvent(event);
   }
 }

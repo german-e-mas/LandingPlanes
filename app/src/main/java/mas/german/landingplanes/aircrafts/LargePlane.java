@@ -11,8 +11,9 @@ import mas.german.landingplanes.Position;
 public class LargePlane extends Aircraft {
     private static final String TAG = LargePlane.class.getSimpleName();
 
-    public static final double MAX_SPEED = 6.75;
-    public static final double MIN_SPEED = 4.5;
+    // Speed is in Map Units per millisecond.
+    public static final double MAX_SPEED = 0.05;
+    public static final double MIN_SPEED = 0.035;
     private static final int RADIUS = 5;
 
     public LargePlane(double speed, double direction, Position pos) {

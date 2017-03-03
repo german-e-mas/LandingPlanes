@@ -11,8 +11,9 @@ import mas.german.landingplanes.Position;
 public class Helicopter extends Aircraft {
     private static final String TAG = Helicopter.class.getSimpleName();
 
-    public static final double MAX_SPEED = 4;
-    public static final double MIN_SPEED = 2.5;
+    // Speed is in Map Units per millisecond.
+    public static final double MAX_SPEED = 0.035;
+    public static final double MIN_SPEED = 0.025;
     private static final int RADIUS = 3;
 
     public Helicopter(double speed, double direction, Position pos) {

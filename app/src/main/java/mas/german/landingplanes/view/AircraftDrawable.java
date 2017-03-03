@@ -12,19 +12,25 @@ import mas.german.landingplanes.Position;
  */
 public abstract class AircraftDrawable extends Drawable {
   private static final String TAG = AircraftDrawable.class.getSimpleName();
+  private static final float SIZE_MODIFIER = 1.5f;
+  private static final int ALPHA_SELECTED = 70;
+  private static final int ALPHA_OPAQUE = 255;
 
-  // ID of the Model Aircraft
+  // ID of the Model Aircraft.
   private int mId;
 
   // Position of the Drawable.
   private float mX;
   private float mY;
 
-  // Radius of the Aircraft
+  // Radius of the Aircraft.
   private float mRadius;
 
-  // Paint to represent the Aircraft
+  // Paint to represent the Aircraft.
   private Paint mPaint;
+
+  // Drawable Selection Flag.
+  private boolean mSelected = false;
 
   protected void setId(int id) {
     mId = id;
@@ -57,9 +63,19 @@ public abstract class AircraftDrawable extends Drawable {
     mPaint.setColor(color);
   }
 
+  protected void select(boolean state) {
+    mSelected = state;
+  }
+
   @Override
   public void draw(Canvas canvas) {
     canvas.save();
+    // A bigger, transparent circle is drawn to provide selection feedback.
+    if (mSelected) {
+      mPaint.setAlpha(ALPHA_SELECTED);
+      canvas.drawCircle(mX, mY, mRadius * SIZE_MODIFIER, mPaint);
+    }
+    mPaint.setAlpha(ALPHA_OPAQUE);
     canvas.drawCircle(mX, mY, mRadius, mPaint);
     canvas.restore();
   }
