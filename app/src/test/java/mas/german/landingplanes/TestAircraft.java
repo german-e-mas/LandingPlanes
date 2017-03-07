@@ -1,14 +1,17 @@
 package mas.german.landingplanes;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+
 import mas.german.landingplanes.aircrafts.*;
 import mas.german.landingplanes.landingsites.*;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 /**
  * Unit Tests related to Aircraft.
  */
-public class TestAircraft extends TestCase {
+public class TestAircraft {
     private static final double ACCEPTED_DELTA = 0.001d;
 
     /**
@@ -68,11 +71,41 @@ public class TestAircraft extends TestCase {
     }
 
     /**
-     * Test the Aircraft landing. They should land in their specific sites and enter in the
-     * correct angle, according to their direction.
+     * Test the Aircraft landing to see if they land on their correct landing site.
      */
     @Test
-    public void testLanding() {
+    public void testLandingSiteType() {
+        // Test Aircraft and Sites.
+        Aircraft testAircraft;
+        Position originPosition = new Position(0, 0);
+        LandingSite testLongRunway = new LongRunway(originPosition, 0, 0);
+        LandingSite testShortRunway = new ShortRunway(originPosition, 0, 0);
+        LandingSite testHelipad = new Helipad(originPosition);
+
+        // Test for Large Plane landing. They should only land on Long Runways.
+        testAircraft = new LargePlane(1, 0, originPosition);
+        assertTrue(testAircraft.land(testLongRunway));
+        assertFalse(testAircraft.land(testShortRunway));
+        assertFalse(testAircraft.land(testHelipad));
+
+        // Test for Light Plane landing. They should can land on both Long and Short Runways.
+        testAircraft = new LightPlane(1, 0, originPosition);
+        assertTrue(testAircraft.land(testLongRunway));
+        assertTrue(testAircraft.land(testShortRunway));
+        assertFalse(testAircraft.land(testHelipad));
+
+        // Test for Helicopter landing. They can only land on Helipads.
+        testAircraft = new Helicopter(1, 0, originPosition);
+        assertFalse(testAircraft.land(testLongRunway));
+        assertFalse(testAircraft.land(testShortRunway));
+        assertTrue(testAircraft.land(testHelipad));
+    }
+
+    /**
+     * Test the Aircraft landing direction. They should land if they enter in the correct angle.
+     */
+    @Test
+    public void testLandingDirection() {
         // The center and aperture angles are set in such way that the aperture of the landing site
         // goes from 0° to 60° (center +/- aperture/2).
         double centerAngle = Math.toRadians(30);
@@ -90,35 +123,21 @@ public class TestAircraft extends TestCase {
         Position originPosition = new Position(0, 0);
         LandingSite testLongRunway = new LongRunway(originPosition, centerAngle, apertureAngle);
         LandingSite testShortRunway = new ShortRunway(originPosition, centerAngle, apertureAngle);
-        LandingSite testHelipad = new Helipad(originPosition);
 
-        // First verify they all land in their correct site. Their direction is the center angle.
-        // Test for Large Plane landing. They should only land on Long Runways.
+        // Test landing with the center angle.
         testAircraft = new LargePlane(1, centerAngle, originPosition);
         assertTrue(testAircraft.land(testLongRunway));
-        assertFalse(testAircraft.land(testShortRunway));
-        assertFalse(testAircraft.land(testHelipad));
-
-        // Test for Light Plane landing. They should can land on both Long and Short Runways.
         testAircraft = new LightPlane(1, centerAngle, originPosition);
         assertTrue(testAircraft.land(testLongRunway));
         assertTrue(testAircraft.land(testShortRunway));
-        assertFalse(testAircraft.land(testHelipad));
 
-        // Test for Helicopter landing. They can only land on Helipads.
-        testAircraft = new Helicopter(1, centerAngle, originPosition);
-        assertFalse(testAircraft.land(testLongRunway));
-        assertFalse(testAircraft.land(testShortRunway));
-        assertTrue(testAircraft.land(testHelipad));
-
-        // Second, we test landings with limit directions.
-        // Test Large Planes on Long Runways.
+        // Test Large Planes on Long Runways with the limit angles.
         testAircraft = new LargePlane(1, testLowerLimit, originPosition);
         assertTrue(testAircraft.land(testLongRunway));
         testAircraft = new LargePlane(1, testUpperLimit, originPosition);
         assertTrue(testAircraft.land(testLongRunway));
 
-        // Test Light Planes on Long and Short Runways.
+        // Test Light Planes on Long and Short Runways with the limit angles.
         testAircraft = new LightPlane(1, testLowerLimit, originPosition);
         assertTrue(testAircraft.land(testLongRunway));
         assertTrue(testAircraft.land(testShortRunway));
@@ -126,14 +145,13 @@ public class TestAircraft extends TestCase {
         assertTrue(testAircraft.land(testLongRunway));
         assertTrue(testAircraft.land(testShortRunway));
 
-        // Lastly, test landings with directions outside the aperture. They shouldn't land.
-        // Test Large Planes on Long Runways.
+        // Test Large Planes on Long Runways with angles outside the aperture.
         testAircraft = new LargePlane(1, testBelowLowerLimit, originPosition);
         assertFalse(testAircraft.land(testLongRunway));
         testAircraft = new LargePlane(1, testPastUpperLimit, originPosition);
         assertFalse(testAircraft.land(testLongRunway));
 
-        // Test Light Planes on Long and Short Runways.
+        // Test Light Planes on Long and Short Runways with angles outside the aperture.
         testAircraft = new LightPlane(1, testBelowLowerLimit, originPosition);
         assertFalse(testAircraft.land(testLongRunway));
         assertFalse(testAircraft.land(testShortRunway));
