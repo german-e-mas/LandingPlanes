@@ -22,4 +22,9 @@ public class Controller implements AerodromeView.OnViewEventListener {
       mGame.orientateSelectedAircraft(position);
     }
   }
+
+  @Override
+  public void onViewReady() {
+    mGame.initialize();
+  }
 }

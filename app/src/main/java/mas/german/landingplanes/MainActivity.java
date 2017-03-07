@@ -17,7 +17,5 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mView = (AerodromeView) findViewById(R.id.view_aerodrome);
         mView.setController(mController);
-
-        mGame.initialize();
     }
 }

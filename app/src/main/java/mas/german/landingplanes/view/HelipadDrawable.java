@@ -11,16 +11,15 @@ import mas.german.landingplanes.landingsites.Helipad;
 public class HelipadDrawable extends LandingSiteDrawable {
   private static final String TAG = HelipadDrawable.class.getSimpleName();
 
-  HelipadDrawable(Context context, Helipad runway) {
-    setPosition(runway.getPosition());
-    setPaintColor(context.getResources().getColor(R.color.landingSite));
+  HelipadDrawable(Context context, float scale, Helipad runway) {
+    super(scale, runway.getPosition(), context.getResources().getColor(R.color.landingSite));
   }
 
   @Override
   public void draw(Canvas canvas) {
     canvas.save();
-    canvas.drawCircle((float) getPosition().getX(), (float) getPosition().getY(), WIDTH/2,
-        getPaint());
+    canvas.drawCircle((float) getPosition().getX(), (float) getPosition().getY(),
+        getMeasurement() / 2, getPaint());
     canvas.restore();
   }
 }

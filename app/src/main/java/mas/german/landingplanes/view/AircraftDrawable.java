@@ -3,6 +3,7 @@ package mas.german.landingplanes.view;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import mas.german.landingplanes.Position;
@@ -19,21 +20,46 @@ public abstract class AircraftDrawable extends Drawable {
   // ID of the Model Aircraft.
   private int mId;
 
-  // Position of the Drawable.
+  // Position of the Drawable, in Canvas Coordinates.
   private float mX;
   private float mY;
 
-  // Radius of the Aircraft.
+  // Radius of the Aircraft, in Canvas Coordinates.
   private float mRadius;
 
-  // Paint to represent the Aircraft.
+  // Scale to convert from Aerodrome Coordinates into Canvas Coordinates.
+  private float mScale = 1f;
+
+  // Direction which the aircraft is facing, in radians.
+  private double mDirection;
+
+  // Representation of the Aircraft.
   private Paint mPaint;
+  private Path mPath;
 
   // Drawable Selection Flag.
   private boolean mSelected = false;
 
-  protected void setId(int id) {
+  AircraftDrawable(int id, Position position, float radius, double direction, float scale, int color) {
     mId = id;
+    mScale = scale;
+    mX = (float) position.getX() * scale;
+    mY = (float) position.getY() * scale;
+    mRadius = radius * scale;
+    mDirection = direction;
+    mPaint = new Paint();
+    mPaint.setStyle(Paint.Style.FILL);
+    mPaint.setColor(color);
+    mPath = new Path();
+  }
+
+  private void configurePath() {
+    mPath.reset();
+    mPath.moveTo(mX + mRadius, mY);
+    mPath.lineTo(mX - 0.5f * mRadius, mY - mRadius * (float) Math.sin(Math.toRadians(60)));
+    mPath.lineTo(mX - 0.25f * mRadius, mY);
+    mPath.lineTo(mX - 0.5f * mRadius, mY + mRadius * (float) Math.sin(Math.toRadians(60)));
+    mPath.close();
   }
 
   protected int getId() {
@@ -41,8 +67,16 @@ public abstract class AircraftDrawable extends Drawable {
   }
 
   protected void setPosition(Position position) {
-    mX = (float) position.getX();
-    mY = (float) position.getY();
+    // Change the direction accordingly.
+    float x = (float) position.getX() * mScale;
+    float y = (float) position.getY() * mScale;
+    mDirection = Math.atan2(y - mY, x - mX);
+    // Keep the angle positive.
+    if (mDirection < 0) {
+      mDirection += 2 * Math.PI;
+    }
+    mX = x;
+    mY = y;
   }
 
   protected Position getPosition() {
@@ -76,7 +110,9 @@ public abstract class AircraftDrawable extends Drawable {
       canvas.drawCircle(mX, mY, mRadius * SIZE_MODIFIER, mPaint);
     }
     mPaint.setAlpha(ALPHA_OPAQUE);
-    canvas.drawCircle(mX, mY, mRadius, mPaint);
+    configurePath();
+    canvas.rotate((float) Math.toDegrees(mDirection), mX, mY);
+    canvas.drawPath(mPath, mPaint);
     canvas.restore();
   }
 
