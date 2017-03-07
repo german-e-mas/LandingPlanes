@@ -37,9 +37,15 @@ public abstract class LandingSite {
     public boolean verifyDirection(double direction) {
         double upperLimit = mCenterAngle + mApertureAngle / 2;
         double lowerLimit = mCenterAngle - mApertureAngle / 2;
-        // For ease of calculation, map the direction from (0,2*PI) to (-PI, PI)
+        // For ease of calculation, map the angles from (0,2*PI) to (-PI, PI)
         if (direction > Math.PI) {
             direction -= 2 * Math.PI;
+        }
+        if (upperLimit > Math.PI) {
+            upperLimit -= 2 * Math.PI;
+        }
+        if (lowerLimit > Math.PI) {
+            lowerLimit -= 2 * Math.PI;
         }
 
         if ((direction <= upperLimit) && (direction >= lowerLimit)) {
