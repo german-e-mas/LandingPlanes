@@ -10,10 +10,8 @@ import mas.german.landingplanes.aircrafts.Aircraft;
 public class LargePlaneDrawable extends AircraftDrawable {
   private static final String TAG = LargePlaneDrawable.class.getSimpleName();
 
-  LargePlaneDrawable(Context context, Aircraft aircraft) {
-    setId(aircraft.getId());
-    setPosition(aircraft.getPosition());
-    setRadius(aircraft.getRadius());
-    setPaintColor(context.getResources().getColor(R.color.largeAircraft));
+  LargePlaneDrawable(Context context, float scale, Aircraft aircraft) {
+    super(aircraft.getId(), aircraft.getPosition(), aircraft.getRadius(), aircraft.getDirection(),
+        scale, context.getResources().getColor(R.color.largeAircraft));
   }
 }

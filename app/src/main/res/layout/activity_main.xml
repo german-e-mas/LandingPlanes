@@ -11,4 +11,40 @@
         android:layout_centerVertical="true"
         android:layout_width="@dimen/aerodrome_size"
         android:layout_height="@dimen/aerodrome_size"/>
+
+    <TextView
+        android:id="@+id/score_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/view_aerodrome"
+        android:layout_alignLeft="@id/view_aerodrome"
+        android:layout_alignStart="@id/view_aerodrome"
+        android:text="@string/score_field"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+    <TextView
+        android:id="@+id/game_over_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/score_field"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/game_over"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_red_dark"
+        android:textAlignment="center"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btn_restart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_aerodrome"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/btn_restart"
+        android:visibility="gone"/>
 </RelativeLayout>

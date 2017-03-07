@@ -11,19 +11,34 @@ import mas.german.landingplanes.Position;
  */
 public abstract class LandingSiteDrawable extends Drawable {
   private static final String TAG = LandingSiteDrawable.class.getSimpleName();
-  // Width measure in Aerodrome Units.
+  // Width measure in Aerodrome Coordinates.
   protected static final float WIDTH = 6f;
 
-  // Entrance Position of the Landing Site.
+  // Entrance Position of the Landing Site, in Canvas Coordinates.
   private float mX;
   private float mY;
 
   // Paint to represent the Landing Site.
   private Paint mPaint;
 
+  // Width of the Runways's length or Helipad's radius, in Canvas Coordinates.
+  private float mWidth = WIDTH;
+
+  // Scale to convert from Aerodrome Coordinates into Canvas Coordinates.
+  private float mScale = 1f;
+
+  LandingSiteDrawable(float scale, Position position, int color) {
+    mScale = scale;
+    mX = (float) position.getX() * scale;
+    mY = (float) position.getY() * scale;
+    mPaint = new Paint();
+    mPaint.setStyle(Paint.Style.FILL);
+    mPaint.setColor(color);
+  }
+
   protected void setPosition(Position position) {
-    mX = (float) position.getX();
-    mY = (float) position.getY();
+    mX = (float) position.getX() * mScale;
+    mY = (float) position.getY() * mScale;
   }
 
   protected Paint getPaint() {
@@ -34,10 +49,8 @@ public abstract class LandingSiteDrawable extends Drawable {
     return new Position(mX, mY);
   }
 
-  protected void setPaintColor(int color) {
-    mPaint = new Paint();
-    mPaint.setStyle(Paint.Style.FILL);
-    mPaint.setColor(color);
+  protected float getWidth() {
+    return mWidth * mScale;
   }
 
   @Override
