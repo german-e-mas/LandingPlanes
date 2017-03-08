@@ -59,7 +59,7 @@ public class TestLandingSite {
         aperture = Math.toRadians(180);
         testSite = new LongRunway(new Position(0, 0), center, aperture);
         // Verify with Center Angle
-        assertTrue(testSite.verifyDirection(Math.toRadians(center)));
+        assertTrue(testSite.verifyDirection(center));
         // Verify Limits. If the angle is negative, test it's positive one as well.
         assertTrue(testSite.verifyDirection(Math.toRadians(120)));
         assertTrue(testSite.verifyDirection(Math.toRadians(-60)));
@@ -74,7 +74,7 @@ public class TestLandingSite {
         aperture = Math.toRadians(270);
         testSite = new LongRunway(new Position(0, 0), center, aperture);
         // Verify Center Angle
-        assertTrue(testSite.verifyDirection(Math.toRadians(center)));
+        assertTrue(testSite.verifyDirection(center));
         // Verify Limits. If the angle is greater than 360°, test it's equivalent.
         assertTrue(testSite.verifyDirection(Math.toRadians(390)));
         assertTrue(testSite.verifyDirection(Math.toRadians(30)));
@@ -82,5 +82,20 @@ public class TestLandingSite {
         // Verify outside the range by +/- 30°.
         assertFalse(testSite.verifyDirection(Math.toRadians(60)));
         assertFalse(testSite.verifyDirection(Math.toRadians(90)));
+
+        // A more normal test, where 0° or 180° is not contained within the range.
+        // Center angle: 90°. Aperture: 90°. Range: [45°, 135°].
+        center = Math.toRadians(90);
+        aperture = Math.toRadians(90);
+        testSite = new LongRunway(new Position(0, 0), center, aperture);
+        // Verify Center Angle
+        assertTrue(testSite.verifyDirection(center));
+        // Verify Limits.
+        assertTrue(testSite.verifyDirection(Math.toRadians(45)));
+        assertTrue(testSite.verifyDirection(Math.toRadians(135)));
+        // Verify outside the range by +/- 5°.
+        assertFalse(testSite.verifyDirection(Math.toRadians(40)));
+        assertFalse(testSite.verifyDirection(Math.toRadians(140)));
+
     }
 }
