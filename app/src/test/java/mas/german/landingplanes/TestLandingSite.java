@@ -52,37 +52,35 @@ public class TestLandingSite {
         LandingSite testSite;
         double center;
         double aperture;
-        double upperLimitAngle;
-        double lowerLimitAngle;
-        double direction;
 
-        // Center and Aperture angles range from 0° to 360°.
-        // Verify all the possible center and aperture angles. In each step they change 10°.
-        for (center = 0; center < 2 * Math.PI; center += Math.toRadians(10)) {
-            for (aperture = 0; aperture < 2 * Math.PI; aperture += Math.toRadians(10)) {
-                // The direction changes only 1°. It ranges from -180° to 180° (which is the range
-                // obtained by the atan2 function).
-                for (direction = -Math.PI; direction < Math.PI; direction += Math.toRadians(1)) {
-                    testSite = new LongRunway(new Position(0, 0), center, aperture);
-                    upperLimitAngle = center + aperture / 2;
-                    lowerLimitAngle = center - aperture / 2;
+        // Issues occur mostly when the center and aperture range include 0° or 180°.
+        // Center angle: 30°. Aperture: 180°. Range: [-60°/300°, 120°].
+        center = Math.toRadians(30);
+        aperture = Math.toRadians(180);
+        testSite = new LongRunway(new Position(0, 0), center, aperture);
+        // Verify with Center Angle
+        assertTrue(testSite.verifyDirection(Math.toRadians(center)));
+        // Verify Limits. If the angle is negative, test it's positive one as well.
+        assertTrue(testSite.verifyDirection(Math.toRadians(120)));
+        assertTrue(testSite.verifyDirection(Math.toRadians(-60)));
+        assertTrue(testSite.verifyDirection(Math.toRadians(300)));
+        // Verify outside the range by +/- 10°.
+        assertFalse(testSite.verifyDirection(Math.toRadians(130)));
+        assertFalse(testSite.verifyDirection(Math.toRadians(-70)));
+        assertFalse(testSite.verifyDirection(Math.toRadians(290)));
 
-                    // To ease calculations, limits should be in the same range as the direction.
-                    if (upperLimitAngle > Math.PI) {
-                        upperLimitAngle -= 2 * Math.PI;
-                    }
-                    if (lowerLimitAngle > Math.PI) {
-                        lowerLimitAngle -= 2 * Math.PI;
-                    }
-
-                    // Test the direction.
-                    if ((direction <= upperLimitAngle) && (direction >= lowerLimitAngle)) {
-                        assertTrue(testSite.verifyDirection(direction));
-                    } else {
-                        assertFalse(testSite.verifyDirection(direction));
-                    }
-                }
-            }
-        }
+        // Center angle: 255°. Aperture: 270°. Range: [120°, 390°/30°].
+        center = Math.toRadians(255);
+        aperture = Math.toRadians(270);
+        testSite = new LongRunway(new Position(0, 0), center, aperture);
+        // Verify Center Angle
+        assertTrue(testSite.verifyDirection(Math.toRadians(center)));
+        // Verify Limits. If the angle is greater than 360°, test it's equivalent.
+        assertTrue(testSite.verifyDirection(Math.toRadians(390)));
+        assertTrue(testSite.verifyDirection(Math.toRadians(30)));
+        assertTrue(testSite.verifyDirection(Math.toRadians(120)));
+        // Verify outside the range by +/- 30°.
+        assertFalse(testSite.verifyDirection(Math.toRadians(60)));
+        assertFalse(testSite.verifyDirection(Math.toRadians(90)));
     }
 }
