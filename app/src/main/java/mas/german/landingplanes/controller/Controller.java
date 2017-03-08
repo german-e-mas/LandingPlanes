@@ -2,13 +2,13 @@ package mas.german.landingplanes.controller;
 
 import mas.german.landingplanes.Game;
 import mas.german.landingplanes.Position;
-import mas.german.landingplanes.view.AerodromeView;
+import mas.german.landingplanes.view.GameView;
 
 /**
  * Controller side of the MVC Pattern. This Controller class receives the information from the view
  * and modifies the Model accordingly.
  */
-public class Controller implements AerodromeView.OnViewEventListener {
+public class Controller implements GameView.ViewEventsListener {
   private static final String TAG = Controller.class.getSimpleName();
 
   // Game instance that contains the Model data.
@@ -25,6 +25,11 @@ public class Controller implements AerodromeView.OnViewEventListener {
 
   @Override
   public void onViewReady() {
+    mGame.initialize();
+  }
+
+  @Override
+  public void onRestartPressed() {
     mGame.initialize();
   }
 }
