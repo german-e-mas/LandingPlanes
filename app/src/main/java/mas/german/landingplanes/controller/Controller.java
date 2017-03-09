@@ -5,13 +5,13 @@ import mas.german.landingplanes.Position;
 import mas.german.landingplanes.view.GameView;
 
 /**
- * Controller side of the MVC Pattern. This Controller class receives the information from the view
- * and modifies the Model accordingly.
+ * Controller side of the MVC Pattern. This Controller class receives the input information from the
+ * view and operates the Model accordingly.
  */
 public class Controller implements GameView.ViewEventsListener {
   private static final String TAG = Controller.class.getSimpleName();
 
-  // Game instance that contains the Model data.
+  // Game instance that contains the Model methods and data.
   private Game mGame = Game.getInstance();
 
   @Override

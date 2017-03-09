@@ -30,7 +30,7 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
     /**
      * Notify the listeners (controllers) that a position in the aerodrome was tapped.
      *
-     * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
+     * @param position  The position in Aerodrome Coordinates.
      */
     void onAerodromeTapped(Position position);
 
@@ -55,10 +55,9 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
   private TextView mScoreText;
   private Button mRestart;
 
+  private Game mGame = Game.getInstance();
   private Context mContext;
   private ViewEventsListener mController;
-
-  private Game mGame = Game.getInstance();
 
   public GameView(Context context) {
     mContext = context;
@@ -87,8 +86,6 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
       @Override
       public void onClick(View view) {
         if (mController != null) {
-          mRestart.setVisibility(View.GONE);
-          mGameOverText.setVisibility(View.GONE);
           mController.onRestartPressed();
         }
       }
@@ -109,8 +106,19 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
 
   @Override
   public void onGameStart() {
+    // The Aerodrome is cleaned and the score refreshed.
     mAerodrome.cleanView();
     refreshScore();
+
+    // A handler is used to reach the activity's UI Thread.
+    Handler handler = new Handler(Looper.getMainLooper());
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        mRestart.setVisibility(View.GONE);
+        mGameOverText.setVisibility(View.GONE);
+      }
+    });
   }
 
   @Override
@@ -235,18 +243,6 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
   @Override
   public void onAircraftOutsideAerodrome(int id) {
     mAerodrome.removeAircraftDrawableById(id);
-  }
-
-  /**
-   * Two aircraft crashed. Delegate this callback to the Aerodrome View in order to represent the
-   * crash.
-   *
-   * @param firstId     ID of the first aircraft that crashed.
-   * @param  secondId   ID of the second aircraft that crashed.
-   */
-  @Override
-  public void onCrash(int firstId, int secondId) {
-    mAerodrome.onCrash(firstId, secondId);
   }
 
   @Override

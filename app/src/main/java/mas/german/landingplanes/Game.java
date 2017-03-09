@@ -114,14 +114,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
          * @param id    ID of the Aircraft that left the aerodrome.
          */
         void onAircraftOutsideAerodrome(int id);
-
-        /**
-         * A crash happened.
-         *
-         * @param firstId   ID of the first Aircraft involved in the crash.
-         * @param secondId  ID of the second Aircraft involved in the crash.
-         */
-        void onCrash(int firstId, int secondId);
     }
 
     public void setListener(EventsListener eventsListener) {
@@ -197,9 +189,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                         // Check for any crash.
                         for (Aircraft otherAircraft : mAircraftList) {
                             if (aircraft.crashesWith(otherAircraft)) {
-                                if (mEventsListener != null) {
-                                    mEventsListener.onCrash(aircraft.getId(), otherAircraft.getId());
-                                }
                                 gameOver();
                                 return;
                             }
@@ -299,7 +288,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
     public int getScore() {
         return mScore;
     }
-
 
     /**
      * Auxiliary method to select a single aircraft while deselecting the rest.

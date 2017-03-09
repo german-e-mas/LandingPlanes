@@ -28,13 +28,13 @@ public class AerodromeView extends ImageView {
   private static final String TAG = AerodromeView.class.getSimpleName();
 
   /**
-   * Aerodrome-related events that let the attached controllers modify the model.
+   * Aerodrome-related events that need to be communicated to the corresponding listeners.
    */
   public interface OnAerodromeEventListener {
     /**
      * Notify the listeners that a position in the aerodrome was tapped.
      *
-     * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
+     * @param position  The position in Aerodrome Coordinates.
      */
     void onAerodromeTapped(Position position);
 
@@ -107,7 +107,7 @@ public class AerodromeView extends ImageView {
   }
 
   /**
-   * Auxiliary method used to scale the Aerodrome Matrix in order to fit the screen.
+   * Auxiliary method used to scale the Aerodrome Matrix in order to fit the given screen space.
    * Note that this method is only called once, as the view's size is constant throughout the game.
    * This Matrix helps mapping between Aerodrome and Canvas Coordinates.
    */
@@ -284,13 +284,6 @@ public class AerodromeView extends ImageView {
       mDrawables.put(helicopter.getId(), new HelicopterDrawable(mContext, mScale, helicopter));
     }
     postInvalidate();
-  }
-
-  /**
-   * Visual representation of a crash.
-   */
-  public void onCrash(int firstId, int secondId) {
-    // Crash happened between the aircrafts of the given IDs.
   }
 
   @Override
