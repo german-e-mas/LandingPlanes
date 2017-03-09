@@ -12,16 +12,15 @@ public class LongRunwayDrawable extends LandingSiteDrawable {
   private static final String TAG = LongRunwayDrawable.class.getSimpleName();
   private static final float LENGTH_MULTIPLIER = 6;
 
-  // Dimensions of the Runway. Width is common to all.
+  // Dimensions of the Runway. The Main Measurement (common to all) is the Width.
   private float mLength;
 
   // Facing direction.
   private double mAngle;
 
-  LongRunwayDrawable(Context context, LongRunway runway) {
-    setPosition(runway.getPosition());
-    setPaintColor(context.getResources().getColor(R.color.landingSite));
-    mLength = LENGTH_MULTIPLIER * WIDTH;
+  LongRunwayDrawable(Context context, float scale, LongRunway runway) {
+    super(scale, runway.getPosition(), context.getResources().getColor(R.color.landingSite));
+    mLength = LENGTH_MULTIPLIER * getMeasurement();
     // Drawable faces the opposite direction of the center Angle.
     mAngle = runway.getCenterAngle() - Math.PI;
   }
@@ -31,7 +30,7 @@ public class LongRunwayDrawable extends LandingSiteDrawable {
     canvas.save();
     canvas.translate((float) getPosition().getX(), (float) getPosition().getY());
     canvas.rotate((float) Math.toDegrees(mAngle));
-    canvas.drawRect(-mLength, -WIDTH/2, 0, WIDTH/2, getPaint());
+    canvas.drawRect(-mLength, -getMeasurement()/2, 0, getMeasurement()/2, getPaint());
     canvas.restore();
   }
 }

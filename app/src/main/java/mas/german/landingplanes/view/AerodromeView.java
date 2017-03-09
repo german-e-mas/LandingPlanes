@@ -37,6 +37,11 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
      * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
      */
     void onAerodromeTapped(Position position);
+
+    /**
+     * Notify the listeners that the view is ready to be used.
+     */
+    void onViewReady();
   }
 
   public void setController(OnViewEventListener controller) {
@@ -59,6 +64,7 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   // Aerodrome Matrix used to fit the model into the view.
   private Matrix mAerodrome = new Matrix();
   private boolean mIsAerodromeLoaded = false;
+  private float mScale = 1f;
 
   // Map of Aircraft Drawables. They represent the aircraft from the model.
   private Map<Integer, AircraftDrawable> mDrawables = new HashMap<>();
@@ -104,12 +110,19 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   /**
    * Auxiliary method used to scale the Aerodrome Matrix in order to fit the screen.
    * Note that this method is only called once, as the view's size is constant throughout the game.
+   * This Matrix helps mapping between Aerodrome and Canvas Coordinates.
    */
   private void prepareAerodrome() {
     float scaleX = getWidth() / (float) (mGame.getAerodrome().getWidth());
     float scaleY = getHeight() / (float) (mGame.getAerodrome().getHeight());
     mAerodrome.postScale(scaleX, scaleY);
     mIsAerodromeLoaded = true;
+    // Since the Aerodrome is square, either scale can be used. Should the aerodrome be rectangular,
+    // the scale would have to be chosen in order to fit the aerodrome in the screen.
+    mScale = scaleX;
+    if (mController != null) {
+      mController.onViewReady();
+    }
   }
 
   /**
@@ -133,9 +146,6 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     if (!mIsAerodromeLoaded) {
       prepareAerodrome();
     }
-
-    // Concatenate the Canvas with the Aerodrome Matrix.
-    canvas.concat(mAerodrome);
 
     // Draw the Aerodrome's Background.
     canvas.drawRect(0, 0, getWidth(), getHeight(), mBackgroundPaint);
@@ -191,23 +201,23 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
 
   @Override
   public void onLongRunwayCreated(LongRunway longRunway) {
-    mSiteDrawables.add(new LongRunwayDrawable(mContext, longRunway));
+    mSiteDrawables.add(new LongRunwayDrawable(mContext, mScale, longRunway));
   }
 
   @Override
   public void onShortRunwayCreated(ShortRunway shortRunway) {
-    mSiteDrawables.add(new ShortRunwayDrawable(mContext, shortRunway));
+    mSiteDrawables.add(new ShortRunwayDrawable(mContext, mScale, shortRunway));
   }
 
   @Override
   public void onHelipadCreated(Helipad helipad) {
-    mSiteDrawables.add(new HelipadDrawable(mContext, helipad));
+    mSiteDrawables.add(new HelipadDrawable(mContext, mScale, helipad));
   }
 
   @Override
   public void onLargePlaneGenerated(LargePlane largePlane) {
     synchronized (mDrawables.values()) {
-      mDrawables.put(largePlane.getId(), new LargePlaneDrawable(mContext, largePlane));
+      mDrawables.put(largePlane.getId(), new LargePlaneDrawable(mContext, mScale, largePlane));
     }
     postInvalidate();
   }
@@ -215,7 +225,7 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   @Override
   public void onLightPlaneGenerated(LightPlane lightPlane) {
     synchronized (mDrawables.values()) {
-      mDrawables.put(lightPlane.getId(), new LightPlaneDrawable(mContext, lightPlane));
+      mDrawables.put(lightPlane.getId(), new LightPlaneDrawable(mContext, mScale, lightPlane));
     }
     postInvalidate();
   }
@@ -223,7 +233,7 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   @Override
   public void onHelicopterGenerated(Helicopter helicopter) {
     synchronized (mDrawables.values()) {
-      mDrawables.put(helicopter.getId(), new HelicopterDrawable(mContext, helicopter));
+      mDrawables.put(helicopter.getId(), new HelicopterDrawable(mContext, mScale, helicopter));
     }
     postInvalidate();
   }
