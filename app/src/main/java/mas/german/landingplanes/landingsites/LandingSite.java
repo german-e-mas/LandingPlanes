@@ -37,16 +37,14 @@ public abstract class LandingSite {
     public boolean verifyDirection(double direction) {
         // Center and Aperture angles are given between [0, 2*PI), which is the same range as the
         // direction.
-        // For ease of calculation in the verification, map the angles from [0, 2*PI) to [-PI, PI)
-        // and calculate their difference, which is mapped as well.
-        double angleDifference = mapAngle(direction) - mapAngle(mCenterAngle);
-        // The difference can fall off the limits. Map it between [-PI, PI)
-        angleDifference = mapAngle(angleDifference);
-        // The limits take the center as zero. Double precision isn't required.
-        float upperLimit = (float) mApertureAngle / 2;
-        float lowerLimit = (float) -mApertureAngle / 2;
-        // Check if the resulting direction falls between the limits.
-        if ((angleDifference <= upperLimit) && (angleDifference >= lowerLimit)) {
+        double angleDifference = Math.abs(direction - mCenterAngle);
+        // The difference can vary between [0; 2*PI), we want it to be between [0; PI]
+        if (angleDifference > Math.PI) {
+            // Map the angle to [-PI;PI) and then take the absolute value.
+            angleDifference = Math.abs(angleDifference - 2 * Math.PI);
+        }
+        // Check if the difference is inside the aperture.
+        if (angleDifference <= (float) mApertureAngle / 2) {
             return true;
         } else {
             return false;
@@ -62,21 +60,4 @@ public abstract class LandingSite {
     public abstract boolean accept(LightPlane lightPlane);
 
     public abstract boolean accept(Helicopter helicopter);
-
-    /**
-     * Auxiliary method to map an angle between [0, 2*PI) to [-PI, PI).
-     *
-     * @param angle Angle between [0, 2*PI).
-     * @return The given angle between [-PI, PI)
-     */
-    private double mapAngle(double angle) {
-        double mappedAngle = angle;
-        if (angle < -Math.PI) {
-            mappedAngle = angle + 2 * Math.PI;
-        }
-        if (angle >= Math.PI) {
-            mappedAngle = angle - 2 * Math.PI;
-        }
-        return mappedAngle;
-    }
 }
