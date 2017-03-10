@@ -35,14 +35,16 @@ public abstract class LandingSite {
      * @param direction The angle in radians to verify.
      */
     public boolean verifyDirection(double direction) {
-        double upperLimit = mCenterAngle + mApertureAngle / 2;
-        double lowerLimit = mCenterAngle - mApertureAngle / 2;
-        // For ease of calculation, map the direction from (0,2*PI) to (-PI, PI)
-        if (direction > Math.PI) {
-            direction -= 2 * Math.PI;
+        // Center and Aperture angles are given between [0, 2*PI), which is the same range as the
+        // direction.
+        double angleDifference = Math.abs(direction - mCenterAngle);
+        // The difference can vary between [0; 2*PI), we want it to be between [0; PI]
+        if (angleDifference > Math.PI) {
+            // Map the angle to [-PI;PI) and then take the absolute value.
+            angleDifference = Math.abs(angleDifference - 2 * Math.PI);
         }
-
-        if ((direction <= upperLimit) && (direction >= lowerLimit)) {
+        // Check if the difference is inside the aperture.
+        if (angleDifference <= (float) mApertureAngle / 2) {
             return true;
         } else {
             return false;
