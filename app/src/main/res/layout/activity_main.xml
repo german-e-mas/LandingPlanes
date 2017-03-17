@@ -1,51 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="mas.german.landingplanes.MainActivity">
-
-    <mas.german.landingplanes.view.AerodromeView
-        android:id="@+id/view_aerodrome"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_width="@dimen/aerodrome_size"
-        android:layout_height="@dimen/aerodrome_size"/>
-
-    <TextView
-        android:id="@+id/score_field"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/view_aerodrome"
-        android:layout_alignLeft="@id/view_aerodrome"
-        android:layout_alignStart="@id/view_aerodrome"
-        android:text="@string/score_field"
-        android:textSize="18dp"
-        android:textStyle="bold"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
     <TextView
         android:id="@+id/game_over_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/score_field"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@string/game_over"
         android:textSize="36sp"
         android:textStyle="bold"
         android:textColor="@android:color/holo_red_dark"
         android:textAlignment="center"
-        android:visibility="gone"/>
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/score_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="@string/score_field"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+    <mas.german.landingplanes.view.AerodromeView
+        android:id="@+id/view_aerodrome"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="@dimen/aerodrome_size"
+        android:layout_height="@dimen/aerodrome_size"/>
 
     <Button
         android:id="@+id/btn_restart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/view_aerodrome"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/btn_restart"
         android:visibility="gone"/>
 
-</RelativeLayout>
+</LinearLayout>

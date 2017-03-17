@@ -116,7 +116,9 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
       @Override
       public void run() {
         mRestart.setVisibility(View.GONE);
-        mGameOverText.setVisibility(View.GONE);
+        // By being Invisible it is taken into account by the layout.
+        // This doesn't happens with Gone, which causes the layout to configure itself.
+        mGameOverText.setVisibility(View.INVISIBLE);
       }
     });
   }
