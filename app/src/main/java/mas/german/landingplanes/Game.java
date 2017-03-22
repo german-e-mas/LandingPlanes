@@ -35,6 +35,11 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      */
     public interface EventsListener {
         /**
+         * Let the listener know the game has started.
+         */
+        void onGameStart();
+
+        /**
          * Let the listener know the game is finished.
          */
         void onGameOver();
@@ -109,14 +114,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
          * @param id    ID of the Aircraft that left the aerodrome.
          */
         void onAircraftOutsideAerodrome(int id);
-
-        /**
-         * A crash happened.
-         *
-         * @param firstId   ID of the first Aircraft involved in the crash.
-         * @param secondId  ID of the second Aircraft involved in the crash.
-         */
-        void onCrash(int firstId, int secondId);
     }
 
     public void setListener(EventsListener eventsListener) {
@@ -155,7 +152,7 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mAircraftList = new ArrayList<>();
         mSites = new ArrayList<>();
         // Other game-related variables.
-        mAerodrome = new Aerodrome(0,100,100,0);
+        mAerodrome = new Aerodrome(0, 100, 100, 0);
         mGenerator = new AircraftGenerator(mAerodrome);
         mGenerator.setOnAircraftGeneratedListener(this);
     }
@@ -164,6 +161,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
      * Start the Game. This resets the score and starts the periodic tasks.
      */
     public void initialize() {
+        if (mEventsListener != null) {
+            mEventsListener.onGameStart();
+        }
         mGenerator.begin();
         mScore = 0;
         setStartingSites();
@@ -189,9 +189,6 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
                         // Check for any crash.
                         for (Aircraft otherAircraft : mAircraftList) {
                             if (aircraft.crashesWith(otherAircraft)) {
-                                if (mEventsListener != null) {
-                                    mEventsListener.onCrash(aircraft.getId(), otherAircraft.getId());
-                                }
                                 gameOver();
                                 return;
                             }
@@ -258,6 +255,9 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
         mGenerator.stop();
         // Cancel the Update Task.
         mUpdateTask.cancel(true);
+        // Clean the lists of Aircraft and Sites.
+        mAircraftList.clear();
+        mSites.clear();
         // Notify the EventsListener about the event.
         if (mEventsListener != null) {
             mEventsListener.onGameOver();
@@ -280,6 +280,13 @@ public class Game implements AircraftGenerator.OnAircraftGenerated {
 
     public Aerodrome getAerodrome() {
         return mAerodrome;
+    }
+
+    /**
+     * Returns the current score
+     */
+    public int getScore() {
+        return mScore;
     }
 
     /**

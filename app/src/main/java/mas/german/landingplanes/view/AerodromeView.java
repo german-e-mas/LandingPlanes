@@ -24,35 +24,35 @@ import mas.german.landingplanes.landingsites.ShortRunway;
 /**
  * This view represents the field where the landing sites stand and where the aircraft fly.
  */
-public class AerodromeView extends ImageView implements Game.EventsListener {
+public class AerodromeView extends ImageView {
   private static final String TAG = AerodromeView.class.getSimpleName();
 
   /**
-   * View-related events that let the attached controllers modify the model.
+   * Aerodrome-related events that need to be communicated to the corresponding listeners.
    */
-  public interface OnViewEventListener {
+  public interface OnAerodromeEventListener {
     /**
-     * Notify the listeners (controllers) that a position in the aerodrome was tapped.
+     * Notify the listeners that a position in the aerodrome was tapped.
      *
-     * @param position  The position in Aerodrome Coordinates that the Aircraft needs to point to.
+     * @param position  The position in Aerodrome Coordinates.
      */
     void onAerodromeTapped(Position position);
 
     /**
-     * Notify the listeners that the view is ready to be used.
+     * Notify the listeners that this view is ready to be used.
      */
-    void onViewReady();
+    void onAerodromeReady();
   }
 
-  public void setController(OnViewEventListener controller) {
-    mController = controller;
+  public void setListener(OnAerodromeEventListener listener) {
+    mListener = listener;
   }
 
   // Each plane need Context in order to access the resources and get their colours.
   private Context mContext;
 
   // The Listener that will be receiving notifications from this class.
-  private OnViewEventListener mController;
+  private OnAerodromeEventListener mListener;
 
   // Paints used in the view.
   private Paint mBackgroundPaint = new Paint();
@@ -89,7 +89,6 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     mBackgroundPaint.setColor(getResources().getColor(R.color.grass));
     mSitePaint.setColor(getResources().getColor(R.color.landingSite));
     mContext = context;
-    mGame.setListener(this);
   }
 
   /**
@@ -108,11 +107,11 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   }
 
   /**
-   * Auxiliary method used to scale the Aerodrome Matrix in order to fit the screen.
+   * Auxiliary method used to scale the Aerodrome Matrix in order to fit the given screen space.
    * Note that this method is only called once, as the view's size is constant throughout the game.
    * This Matrix helps mapping between Aerodrome and Canvas Coordinates.
    */
-  private void prepareAerodrome() {
+  public void prepareAerodrome() {
     float scaleX = getWidth() / (float) (mGame.getAerodrome().getWidth());
     float scaleY = getHeight() / (float) (mGame.getAerodrome().getHeight());
     mAerodrome.postScale(scaleX, scaleY);
@@ -120,9 +119,19 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     // Since the Aerodrome is square, either scale can be used. Should the aerodrome be rectangular,
     // the scale would have to be chosen in order to fit the aerodrome in the screen.
     mScale = scaleX;
-    if (mController != null) {
-      mController.onViewReady();
+    if (mListener != null) {
+      mListener.onAerodromeReady();
     }
+  }
+
+  /**
+   * Restores the Aerodrome's view. Clear it's drawables and returns the background to it's original
+   * color.
+   */
+  public void cleanView() {
+    mDrawables.clear();
+    mSiteDrawables.clear();
+    mBackgroundPaint.setColor(getResources().getColor(R.color.grass));
   }
 
   /**
@@ -131,7 +140,7 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
    *
    * @param id  Drawable Aircraft to be removed.
    */
-  private void removeAircraftDrawableById(int id) {
+  public void removeAircraftDrawableById(int id) {
     synchronized (mDrawables.values()) {
       mDrawables.remove(id);
     }
@@ -165,7 +174,9 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     canvas.restore();
   }
 
-  @Override
+  /**
+   * Update the position of all aircraft.
+   */
   public void onAircraftPositionChanged() {
     // Synchronize the Drawable's list, so we make sure we update all the positions safely.
     synchronized (mDrawables.values()) {
@@ -176,7 +187,12 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     postInvalidate();
   }
 
-  @Override
+  /**
+   * Change the visual state of the given aircraft.
+   *
+   * @param id      ID of the target aircraft.
+   * @param state   Selection state to represent.
+   */
   public void onAircraftSelect(int id, boolean state) {
     synchronized (mDrawables.values()) {
       // Select or deselect the aircraft with the matched ID. The rest is deselected. Only one can
@@ -192,29 +208,51 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     postInvalidate();
   }
 
-  @Override
+  /**
+   * Visual effect of the game over.
+   */
   public void onGameOver() {
     // Game Over visual effect.
     mBackgroundPaint.setColor(getResources().getColor(R.color.landingSite));
     postInvalidate();
   }
 
-  @Override
+  /**
+   * Create the visual representation of the given Long Runway and add it to the list of landing
+   * site drawables.
+   *
+   * @param longRunway  The long runway created.
+   */
   public void onLongRunwayCreated(LongRunway longRunway) {
     mSiteDrawables.add(new LongRunwayDrawable(mContext, mScale, longRunway));
   }
 
-  @Override
+  /**
+   * Create the visual representation of the given Short Runway and add it to the list of landing
+   * site drawables.
+   *
+   * @param shortRunway  The short runway created.
+   */
   public void onShortRunwayCreated(ShortRunway shortRunway) {
     mSiteDrawables.add(new ShortRunwayDrawable(mContext, mScale, shortRunway));
   }
 
-  @Override
+  /**
+   * Create the visual representation of the given Helipad and add it to the list of landing
+   * site drawables.
+   *
+   * @param helipad  The helipad created.
+   */
   public void onHelipadCreated(Helipad helipad) {
     mSiteDrawables.add(new HelipadDrawable(mContext, mScale, helipad));
   }
 
-  @Override
+  /**
+   * Create the visual representation of the given Large Plane and add it to the list of aircraft
+   * drawables.
+   *
+   * @param largePlane  The large plane created.
+   */
   public void onLargePlaneGenerated(LargePlane largePlane) {
     synchronized (mDrawables.values()) {
       mDrawables.put(largePlane.getId(), new LargePlaneDrawable(mContext, mScale, largePlane));
@@ -222,7 +260,12 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     postInvalidate();
   }
 
-  @Override
+  /**
+   * Create the visual representation of the given Light Plane and add it to the list of aircraft
+   * drawables.
+   *
+   * @param lightPlane  The light plane created.
+   */
   public void onLightPlaneGenerated(LightPlane lightPlane) {
     synchronized (mDrawables.values()) {
       mDrawables.put(lightPlane.getId(), new LightPlaneDrawable(mContext, mScale, lightPlane));
@@ -230,7 +273,12 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
     postInvalidate();
   }
 
-  @Override
+  /**
+   * Create the visual representation of the given Helicopter and add it to the list of aircraft
+   * drawables.
+   *
+   * @param helicopter  The helicopter created.
+   */
   public void onHelicopterGenerated(Helicopter helicopter) {
     synchronized (mDrawables.values()) {
       mDrawables.put(helicopter.getId(), new HelicopterDrawable(mContext, mScale, helicopter));
@@ -239,28 +287,13 @@ public class AerodromeView extends ImageView implements Game.EventsListener {
   }
 
   @Override
-  public void onLand(int id) {
-    removeAircraftDrawableById(id);
-  }
-
-  @Override
-  public void onAircraftOutsideAerodrome(int id) {
-    removeAircraftDrawableById(id);
-  }
-
-  @Override
-  public void onCrash(int firstId, int secondId) {
-    // Crash happened between the aircrafts of the given IDs.
-  }
-
-  @Override
   public boolean onTouchEvent(MotionEvent event) {
     switch (event.getActionMasked()) {
       case MotionEvent.ACTION_DOWN:
-        if (mController != null) {
+        if (mListener != null) {
           // Map the coordinates into the Aerodrome.
           Position aerodromePosition = getAerodromePosition(event.getX(), event.getY());
-          mController.onAerodromeTapped(aerodromePosition);
+          mListener.onAerodromeTapped(aerodromePosition);
         }
         return true;
     }
