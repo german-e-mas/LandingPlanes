@@ -19,11 +19,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Pass the layout elements to the View Class.
-        mGameView = new GameView(getApplicationContext());
-        mGameView.setAerodrome((AerodromeView) findViewById(R.id.view_aerodrome));
-        mGameView.setScoreText((TextView) findViewById(R.id.score_field));
-        mGameView.setGameOverText((TextView) findViewById(R.id.game_over_text));
-        mGameView.setRestartButton((Button) findViewById(R.id.btn_restart));
+        mGameView = new GameView(getApplicationContext(),
+            (AerodromeView) findViewById(R.id.view_aerodrome),
+            (TextView) findViewById(R.id.score_field), (TextView) findViewById(R.id.game_over_text),
+            (Button) findViewById(R.id.btn_restart));
 
         mGameView.setController(mController);
         mGameView.initialize();

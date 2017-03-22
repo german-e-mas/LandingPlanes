@@ -59,28 +59,12 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
   private Context mContext;
   private ViewEventsListener mController;
 
-  public GameView(Context context) {
+  public GameView(Context context, AerodromeView aerodrome, TextView scoreText,
+                  TextView gameOverText, Button restart) {
     mContext = context;
-  }
-
-  public void initialize() {
-    mGame.setListener(this);
-    mAerodrome.setListener(this);
-  }
-
-  public void setAerodrome(AerodromeView aerodrome) {
     mAerodrome = aerodrome;
-  }
-
-  public void setScoreText(TextView scoreText) {
     mScoreText = scoreText;
-  }
-
-  public void setGameOverText(TextView gameOverText) {
     mGameOverText = gameOverText;
-  }
-
-  public void setRestartButton(Button restart) {
     mRestart = restart;
     mRestart.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -90,6 +74,11 @@ public class GameView implements Game.EventsListener, AerodromeView.OnAerodromeE
         }
       }
     });
+  }
+
+  public void initialize() {
+    mGame.setListener(this);
+    mAerodrome.setListener(this);
   }
 
   private void refreshScore() {
